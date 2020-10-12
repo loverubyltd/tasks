@@ -63,6 +63,19 @@
           app:layout_constraintRight_toRightOf="@id/map"
           app:layout_constraintTop_toTopOf="@id/map"/>
 
+        <ImageView
+          android:id="@+id/huawei_marker"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:paddingBottom="48dp"
+          android:src="@drawable/ic_map_marker_select_red_48dp"
+          android:visibility="gone"
+          app:layout_constraintBottom_toBottomOf="@id/map"
+          app:layout_constraintLeft_toLeftOf="@id/map"
+          app:layout_constraintRight_toRightOf="@id/map"
+          app:layout_constraintTop_toTopOf="@id/map"/>
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
           android:id="@+id/current_location"
           android:layout_width="wrap_content"

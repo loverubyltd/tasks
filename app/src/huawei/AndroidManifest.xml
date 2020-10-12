@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="org.tasks">
+
+    <application>
+
+        <meta-data
+            android:name="install_channel"
+            android:value="AppGallery" />
+
+        <service android:name="org.tasks.location.GeofenceTransitionsIntentService" />
+    </application>
+
+</manifest>

@@ -8,12 +8,14 @@ plugins {
     id("com.github.ben-manes.versions") version "0.33.0"
     id("com.vanniktech.android.junit.jacoco") version "0.16.0"
     id("dagger.hilt.android.plugin")
+    id("com.huawei.agconnect")
 }
 
 repositories {
     jcenter()
     google()
     maven(url = "https://jitpack.io")
+    maven(url = "https://developer.huawei.com/repo/") // HUAWEI Maven repository
 }
 
 android {
@@ -90,15 +92,19 @@ android {
             }
             val tasks_mapbox_key_debug: String? by project
             val tasks_google_key_debug: String? by project
+            val tasks_huawei_key_debug: String? by project
             resValue("string", "mapbox_key", tasks_mapbox_key_debug ?: "")
             resValue("string", "google_key", tasks_google_key_debug ?: "")
+            resValue("string", "huawei_key", tasks_huawei_key_debug ?: "")
             isTestCoverageEnabled = project.hasProperty("coverage")
         }
         getByName("release") {
             val tasks_mapbox_key: String? by project
             val tasks_google_key: String? by project
+            val tasks_huawei_key: String? by project
             resValue("string", "mapbox_key", tasks_mapbox_key ?: "")
             resValue("string", "google_key", tasks_google_key ?: "")
+            resValue("string", "huawei_key", tasks_huawei_key ?: "")
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard.pro")
             signingConfig = signingConfigs.getByName("release")
@@ -113,6 +119,17 @@ android {
         }
         create("googleplay") {
             dimension("store")
+        }
+        create("huawei") {
+            dimension("store")
+            applicationId = "org.tasks.huawei"
+
+            buildTypes {
+                getByName("debug") {
+                    applicationId = "org.tasks.huawei"
+                    applicationIdSuffix = ""
+                }
+            }
         }
     }
 
@@ -136,6 +153,7 @@ configurations.all {
 
 val genericImplementation by configurations
 val googleplayImplementation by configurations
+val huaweiImplementation by configurations
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.0.10")
@@ -212,6 +230,17 @@ dependencies {
     googleplayImplementation("com.google.android.libraries.places:places:2.4.0")
     googleplayImplementation("com.android.billingclient:billing:1.2.2")
 
+    huaweiImplementation("com.huawei.agconnect:agconnect-core:1.4.1.300")
+    huaweiImplementation("com.huawei.agconnect:agconnect-crash:1.4.1.300")
+    huaweiImplementation("com.huawei.agconnect:agconnect-remoteconfig:1.4.1.300")
+    huaweiImplementation("com.huawei.hms:hianalytics:5.0.4.203")
+    huaweiImplementation("com.huawei.hms:iap:5.0.2.300")
+    huaweiImplementation("com.huawei.hms:location:5.0.2.301")
+    huaweiImplementation("com.huawei.hms:maps:5.0.2.300")
+    huaweiImplementation("com.huawei.hms:site:5.0.2.300")
+    huaweiImplementation("androidx.localbroadcastmanager:localbroadcastmanager:1.0.0")
+    huaweiImplementation("androidx.documentfile:documentfile:1.0.1")
+
     androidTestImplementation("com.google.dagger:hilt-android-testing:${Versions.hilt}")
     kaptAndroidTest("com.google.dagger:hilt-compiler:${Versions.hilt}")
     kaptAndroidTest("androidx.hilt:hilt-compiler:${Versions.hilt_androidx}")
@@ -230,4 +259,11 @@ dependencies {
     testImplementation("org.mockito:mockito-core:${Versions.mockito}")
 }
 
-apply(mapOf("plugin" to "com.google.gms.google-services"))
+// apply(mapOf("plugin" to "com.google.gms.google-services"))
+// apply(plugin = "com.huawei.agconnect")
+
+agcp{
+    mappingUpload = true 
+    debug = false
+    appVersion = "xxx"
+}

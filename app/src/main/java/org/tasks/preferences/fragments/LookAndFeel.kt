@@ -133,7 +133,7 @@ class LookAndFeel : InjectingPreferenceFragment() {
         }
 
         @Suppress("ConstantConditionIf")
-        if (BuildConfig.FLAVOR != "googleplay") {
+        if (BuildConfig.FLAVOR != "googleplay" && BuildConfig.FLAVOR != "huawei") {
             removeGroup(R.string.TEA_control_location)
         }
     }

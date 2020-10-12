@@ -37,8 +37,8 @@ public class IdListFilter extends Filter {
 
   private static QueryTemplate getQueryTemplate(List<Long> ids) {
     return new QueryTemplate()
-        .join(Join.left(Tag.TABLE, Tag.TASK.eq(Task.ID)))
-        .where(Task.ID.in(ids));
+        .join(Join.left(Tag.TABLE, Tag.TASK.eq(Task.ID)));
+        //.where(Task.ID.in(ids));
   }
 
   @Override

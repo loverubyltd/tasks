@@ -60,3 +60,13 @@
 -dontnote **.ILicensingService
 -dontnote sun.misc.Unsafe
 -dontwarn sun.misc.Unsafe
+
+
+-keepattributes *Annotation*
+-keepattributes Exceptions
+-keepattributes InnerClasses
+-keepattributes Signature
+-keepattributes SourceFile,LineNumberTable
+-keep class com.hianalytics.android.**{*;}
+-keep class com.huawei.updatesdk.**{*;}
+-keep class com.huawei.hms.**{*;}
