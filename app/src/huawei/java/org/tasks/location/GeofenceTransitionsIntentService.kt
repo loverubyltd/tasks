@@ -67,10 +67,10 @@ class GeofenceTransitionsIntentService : InjectingJobIntentService() {
 
     private fun toNotification(
         place: Place,
-        geofence: org.tasks.data.Geofence?,
+        geofence: org.tasks.data.Geofence ,
         arrival: Boolean
     ): Notification = Notification().apply {
-        taskId = geofence!!.task
+        taskId = geofence.task
         type =
             if (arrival) ReminderService.TYPE_GEOFENCE_ENTER else ReminderService.TYPE_GEOFENCE_EXIT
         timestamp = DateTimeUtils.currentTimeMillis()
