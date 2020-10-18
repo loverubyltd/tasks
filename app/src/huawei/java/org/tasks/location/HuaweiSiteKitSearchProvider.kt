@@ -15,7 +15,11 @@ import org.tasks.data.Place.Companion.newPlace
 
 
 class HuaweiSiteKitSearchProvider(private val activity: Activity) : PlaceSearchProvider {
-    private var searchService: SearchService? = null
+    private val apiKey = activity.getString(R.string.huawei_key)
+
+    private val searchService: SearchService by lazy {
+        SearchServiceFactory.create(activity, apiKey)
+    }
 
     override fun restoreState(savedInstanceState: Bundle?) {
     }
@@ -32,22 +36,14 @@ class HuaweiSiteKitSearchProvider(private val activity: Activity) : PlaceSearchP
         onSuccess: Callback<List<PlaceSearchResult>>,
         onError: Callback<String>
     ) {
-        val apiKey = activity.getString(R.string.huawei_key)
-        if (searchService == null) {
-            searchService = SearchServiceFactory.create(
-                activity,
-                apiKey
-            )
-        }
-
-        val request = QueryAutocompleteRequest().apply {
-            setQuery(query)
+        val request = QueryAutocompleteRequest().also {
+            it.setQuery(query)
             if (bias != null) {
-                location = Coordinate(bias.latitude, bias.longitude)
+                it.location = Coordinate(bias.latitude, bias.longitude)
             }
         }
 
-        searchService!!.queryAutocomplete(
+        searchService.queryAutocomplete(
             request,
             object : SearchResultListener<QueryAutocompleteResponse> {
                 override fun onSearchResult(response: QueryAutocompleteResponse?) {
@@ -70,15 +66,13 @@ class HuaweiSiteKitSearchProvider(private val activity: Activity) : PlaceSearchP
         onSuccess.call(placeSearchResult.place)
     }
 
-    private fun toSearchResults(sites: Array<Site>): List<PlaceSearchResult> {
-        return sites.map {
-            PlaceSearchResult(
-                it.siteId,
-                it.name,
-                it.formatAddress,
-                toPlace(it)
-            )
-        }
+    private fun toSearchResults(sites: Array<Site>): List<PlaceSearchResult> = sites.map {
+        PlaceSearchResult(
+            it.siteId,
+            it.name,
+            it.formatAddress,
+            toPlace(it)
+        )
     }
 
     private fun toPlace(site: Site): Place = newPlace().apply {
