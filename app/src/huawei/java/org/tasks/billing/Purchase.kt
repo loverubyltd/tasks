@@ -34,6 +34,9 @@ class Purchase(private val purchase: InAppPurchaseData) {
     val isProSubscription: Boolean
         get() = purchase.productGroup == PRO_PRODUCT_HROUP_NAME
 
+    val purchaseToken: String
+        get() = purchase.purchaseToken
+
     companion object {
         private val PATTERN = Pattern.compile("^(annual|monthly)_([0-1][0-9])$")
         const val PRO_PRODUCT_HROUP_NAME = "Pro"

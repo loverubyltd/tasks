@@ -5,39 +5,44 @@ import android.content.Context
 import android.content.IntentSender
 import android.text.TextUtils
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.result.IntentSenderRequest
 import com.huawei.hms.iap.Iap
 import com.huawei.hms.iap.IapApiException
 import com.huawei.hms.iap.IapClient.PriceType
-import com.huawei.hms.iap.entity.*
-import org.json.JSONException
+import com.huawei.hms.iap.entity.OrderStatusCode
+import com.huawei.hms.iap.entity.OwnedPurchasesResult
+import com.todoroo.andlib.utility.AndroidUtilities
+import dagger.hilt.android.qualifiers.ApplicationContext
+import org.tasks.BuildConfig
 import org.tasks.analytics.Firebase
 import timber.log.Timber
 
-
-@Suppress("UNUSED_PARAMETER")
-class BillingClientImpl(val context: Context?, inventory: Inventory?, firebase: Firebase?) :
+class BillingClientImpl(
+    @ApplicationContext val context: Context,
+    val inventory: Inventory,
+    val firebase: Firebase
+) :
     BillingClient {
 
-    private val inventory: Inventory? = null
-    private val firebase: Firebase? = null
+    private val iapClient = Iap.getIapClient(context)
     private var onPurchasesUpdated: OnPurchasesUpdated? = null
+    private var purchaseLifecycleObserver: PurchaseLifecycleObserver? = null
+
 
     override fun queryPurchases() {
         queryPurchasesInternal(null)
     }
 
     private fun queryPurchasesInternal(continuationToken: String?) {
-        val iapClient = Iap.getIapClient(context);
         IapRequestHelper.obtainOwnedPurchases(
             iapClient = iapClient,
             type = PriceType.IN_APP_SUBSCRIPTION,
             continuationToken = null,
             onSuccessListener = { result ->
                 Timber.i("obtainOwnedPurchases, success")
-                // TODO sheckHiddenLevelPurchaseState(result)
-                if (result != null && !TextUtils.isEmpty(result.continuationToken)) {
-                    queryPurchasesInternal(result.continuationToken)
-                }
+
+                result?.let { onQueryPurchasesFinished(it) }
             },
             onFailureListener = { e ->
                 Timber.e(
@@ -45,47 +50,83 @@ class BillingClientImpl(val context: Context?, inventory: Inventory?, firebase: 
                     TYPE_SUBS,
                     e!!.message
                 )
-                Toast.makeText(
-                    context,
-                    "get Purchases fail, ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                if (e.statusCode == OrderStatusCode.ORDER_HWID_NOT_LOGIN) {
+                    Toast.makeText(
+                        context,
+                        "Please sign in to the app with a HUAWEI ID.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        context,
+                        "get Purchases fail, ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             })
+    }
 
+    /** Handle a result from querying of purchases and report an updated list to the listener  */
+    private fun onQueryPurchasesFinished(result: OwnedPurchasesResult) {
+        AndroidUtilities.assertMainThread()
 
-//                if (exception.statusCode == OrderStatusCode.ORDER_HWID_NOT_LOGIN) {
-//                    Toast.makeText(
-//                        context,
-//                        "Please sign in to the app with a HUAWEI ID.",
-//                        Toast.LENGTH_SHORT
-//                    ).show()
+        // Have we been disposed of in the meantime? If so, or bad result code, then quit
+        if (iapClient == null || !result.status.isSuccess) {
+            Timber.w(
+                "Billing client was null or result code (%s) was bad - quitting",
+                result.returnCode
+            )
+            return
+        }
+        Timber.d("Query inventory was successful.")
 
+        // Update the UI and purchases inventory with new list of purchases
+        if (TextUtils.isEmpty(result.continuationToken)) {
+            inventory.clear()
+        }
+
+        val purchases = result.inAppPurchaseDataList.map { Purchase(it) }
+        inventory.add(purchases)
+
+        if (!TextUtils.isEmpty(result.continuationToken)) {
+            queryPurchasesInternal(result.continuationToken)
+        }
     }
 
     override fun initiatePurchaseFlow(
-        activity: Activity, sku: String, skuType: String, oldSku: String?
+        _activity: Activity, sku: String, skuType: String, oldSku: String?
     ) {
-        val iapClient = Iap.getIapClient(activity)
+
+        val activity = _activity as ComponentActivity
+        purchaseLifecycleObserver = PurchaseLifecycleObserver(activity)
+
         IapRequestHelper.createPurchaseIntent(
             iapClient = iapClient,
             productId = sku,
-            type = skuType.toInt(),
-            onSuccessListener = { result ->
+            type = PriceType.IN_APP_SUBSCRIPTION,
+            onSuccessListener = OnSuccessListener@{ result ->
                 Timber.i("createPurchaseIntent, onSuccess")
-//                if (result == null) {
-//                    Timber.e("result is null")
-//                    return@OnSuccessListener
-//                }
-                 val status = result.status
-//                if (status == null) {
-//                    Timber.e("status is null")
-//                    return@OnSuccessListener
-//                }
+                //                if (result == null) {
+                //                    Timber.e("result is null")
+                //                    return@OnSuccessListener
+                //                }
+                val status = result.status
+                if (status == null) {
+                    Timber.e("status is null")
+                    return@OnSuccessListener
+                }
 
                 // you should pull up the page to complete the payment process.
                 if (status.hasResolution()) {
                     try {
-                        status.startResolutionForResult(activity, REQ_CODE_BUY)
+                        // status.startResolutionForResult(activity, REQ_CODE_BUY)
+                        val pendingIntent = status.getPendingIntent()
+                        if (pendingIntent != null) {
+                            val request = IntentSenderRequest.Builder(pendingIntent.intentSender).build()
+
+                            purchaseLifecycleObserver!!.purchaseThing(request)
+                        }
+
                     } catch (ex: IntentSender.SendIntentException) {
                         Timber.e(ex)
                     }
@@ -96,7 +137,11 @@ class BillingClientImpl(val context: Context?, inventory: Inventory?, firebase: 
             onFailureListener = { exception ->
                 Toast.makeText(activity, exception.message, Toast.LENGTH_SHORT).show()
                 if (exception is IapApiException) {
-                    Timber.e(exception, "createPurchaseIntent, returnCode: %s", exception.statusCode)
+                    Timber.e(
+                        exception,
+                        "createPurchaseIntent, returnCode: %s",
+                        exception.statusCode
+                    )
                     // handle error scenarios
                 } else {
                     Timber.e(exception, "Unexpected Error")
@@ -110,59 +155,43 @@ class BillingClientImpl(val context: Context?, inventory: Inventory?, firebase: 
     }
 
     override fun consume(sku: String) {
-        val iapClient = Iap.getIapClient(context)
-        val req = ConsumeOwnedPurchaseReq()
-        // Parse purchaseToken from InAppPurchaseData in JSON format.
-        try {
-            val inAppPurchaseData = InAppPurchaseData("""{"product_id": "$sku"}""")
-            req.purchaseToken = inAppPurchaseData.purchaseToken
-        } catch (e: JSONException) {
-            Timber.e("createConsumeOwnedPurchaseReq JSONExeption")
-        }
+        check(BuildConfig.DEBUG)
+        require(inventory.purchased(sku))
 
-        val task = iapClient.consumeOwnedPurchase(req)
-        task.addOnSuccessListener { // Consume success
-            Timber.i("consumeOwnedPurchase success")
-            Toast.makeText(
-                context,
-                "Pay success, and the product has been delivered",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-        task.addOnFailureListener { exception ->
-            Timber.e(exception)
-            Toast.makeText(context, exception.message, Toast.LENGTH_SHORT).show()
-            if (exception is IapApiException) {
-                Timber.e(
-                    exception,
-                    "consumeOwnedPurchase fail,returnCode: %s",
-                    exception.statusCode
-                )
-            } else {
-                // Other external errors
-            }
-        }
+        IapRequestHelper.consumeOwnedPurchase(iapClient, inventory.getPurchase(sku).purchaseToken)
     }
+
 
     companion object {
         const val TYPE_SUBS: String = PriceType.IN_APP_SUBSCRIPTION.toString()
+
+        /** requestCode for pull up the pmsPay page  */
         const val REQ_CODE_BUY = 4002
 
-        fun BillingResponseToString(response: Int): String? {
+        fun PurchaseResponseToString(response: Int): String? {
             return when (response) {
-//            BillingResponse.FEATURE_NOT_SUPPORTED -> "FEATURE_NOT_SUPPORTED"
-//            BillingResponse.SERVICE_DISCONNECTED -> "SERVICE_DISCONNECTED"
-//            BillingResponse.OK -> "OK"
-//            BillingResponse.USER_CANCELED -> "USER_CANCELED"
-//            BillingResponse.SERVICE_UNAVAILABLE -> "SERVICE_UNAVAILABLE"
-//            BillingResponse.BILLING_UNAVAILABLE -> "BILLING_UNAVAILABLE"
-//            BillingResponse.ITEM_UNAVAILABLE -> "ITEM_UNAVAILABLE"
-//            BillingResponse.DEVELOPER_ERROR -> "DEVELOPER_ERROR"
-//            BillingResponse.ERROR -> "ERROR"
-//            BillingResponse.ITEM_ALREADY_OWNED -> "ITEM_ALREADY_OWNED"
-//            BillingResponse.ITEM_NOT_OWNED -> "ITEM_NOT_OWNED"
+                OrderStatusCode.ORDER_ACCOUNT_AREA_NOT_SUPPORTED -> "ACCOUNT_AREA_NOT_SUPPORTED"
+                OrderStatusCode.ORDER_HIGH_RISK_OPERATIONS -> "HIGH_RISK_OPERATIONS"
+                OrderStatusCode.ORDER_HWID_NOT_LOGIN -> "HWID_NOT_LOGIN"
+                OrderStatusCode.ORDER_NOT_ACCEPT_AGREEMENT -> "NOT_ACCEPT_AGREEMENT"
+                OrderStatusCode.ORDER_PRODUCT_CONSUMED -> "PRODUCT_CONSUMED"
+                OrderStatusCode.ORDER_PRODUCT_NOT_OWNED -> "PRODUCT_NOT_OWNED"
+                OrderStatusCode.ORDER_PRODUCT_OWNED -> "PRODUCT_OWNED"
+                OrderStatusCode.ORDER_STATE_CALLS_FREQUENT -> "CALLS_FREQUENT"
+                OrderStatusCode.ORDER_STATE_CANCEL -> "CANCEL"
+                OrderStatusCode.ORDER_STATE_FAILED -> "FAILED"
+                OrderStatusCode.ORDER_STATE_IAP_NOT_ACTIVATED -> "IAP_NOT_ACTIVATED"
+                OrderStatusCode.ORDER_STATE_NET_ERROR -> "NET_ERROR"
+                OrderStatusCode.ORDER_STATE_PARAM_ERROR -> "PARAM_ERROR"
+                OrderStatusCode.ORDER_STATE_PMS_TYPE_NOT_MATCH -> "PMS_TYPE_NOT_MATCH"
+                OrderStatusCode.ORDER_STATE_PRODUCT_COUNTRY_NOT_SUPPORTED -> "PRODUCT_COUNTRY_NOT_SUPPORTED"
+                OrderStatusCode.ORDER_STATE_PRODUCT_INVALID -> "PRODUCT_INVALID"
+                OrderStatusCode.ORDER_STATE_SUCCESS -> "SUCCESS"
+                OrderStatusCode.ORDER_VR_UNINSTALL_ERROR -> "VR_UNINSTALL_ERROR"
                 else -> "Unknown"
             }
         }
     }
 }
+
+

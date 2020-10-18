@@ -267,5 +267,5 @@ dependencies {
 agcp{
     mappingUpload = true 
     debug = false
-    appVersion = "xxx"
+    // appVersion = "xxx"
 }

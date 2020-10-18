@@ -1,6 +1,7 @@
 package org.tasks.billing
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -8,10 +9,12 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.google.android.material.button.MaterialButtonToggleGroup
+import com.huawei.hms.iap.entity.OrderStatusCode
 import dagger.hilt.android.AndroidEntryPoint
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
@@ -37,6 +40,8 @@ class PurchaseActivity : ThemedInjectingAppCompatActivity(), OnPurchasesUpdated,
 
     private lateinit var binding: ActivityPurchaseBinding
     private lateinit var adapter: PurchaseAdapter
+
+
 
     private var currentSubscription: Purchase? = null
 
@@ -201,4 +206,7 @@ class PurchaseActivity : ThemedInjectingAppCompatActivity(), OnPurchasesUpdated,
             false
         }
     }
+
+
+
 }

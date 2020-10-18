@@ -4,6 +4,7 @@ package org.tasks.analytics
 import android.content.Context
 import android.content.res.XmlResourceParser
 import android.os.Bundle
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.annotation.XmlRes
 import androidx.core.os.bundleOf
@@ -40,14 +41,19 @@ class Firebase @Inject constructor(
 
     fun reportException(t: Throwable) {
         Timber.e(t)
-        // crashReporter?.recordException(t)
+        crashReporter?.setCustomKey("reportingMethod", "Firebase#reportException")
+        crashReporter?.log(
+            Log.WARN,
+            "Reporting Exception: ${t.javaClass}"
+        )
+        throw t
     }
 
     fun reportIabResult(response: Int, sku: String?) {
         analytics?.onEvent(
             HAEventType.COMPLETEPURCHASE, bundleOf(
                 HAParamType.PRODUCTID to sku,
-                HAEventType.CREATEORDER to BillingClientImpl.BillingResponseToString(response)
+                HAEventType.CREATEORDER to BillingClientImpl.PurchaseResponseToString(response)
             )
         )
     }
@@ -93,7 +99,7 @@ class Firebase @Inject constructor(
     }
 
     private fun readXml2Map(@XmlRes resId: Int): Map<String?, Any?>? {
-        val defaultsMap: MutableMap<String?, Any?> = HashMap()
+        val defaultsMap: MutableMap<String?, Any?> = hashMapOf()
         val context = AGConnectInstance.getInstance().context
         try {
             val resources = context.resources ?: return defaultsMap
@@ -103,30 +109,33 @@ class Firebase @Inject constructor(
             var value: String? = null
             var eventType = xmlParser.eventType
             while (eventType != XmlResourceParser.END_DOCUMENT) {
-                if (eventType == XmlResourceParser.START_TAG) {
-                    curTag = xmlParser.name
-                } else if (eventType == XmlResourceParser.END_TAG) {
-                    if (xmlParser.name == "entry") {
-                        if (key != null && value != null) {
-                            defaultsMap[key] = value
-                        }
-                        key = null
-                        value = null
+                when (eventType) {
+                    XmlResourceParser.START_TAG -> {
+                        curTag = xmlParser.name
                     }
-                    curTag = null
-                } else if (eventType == XmlResourceParser.TEXT) {
-                    if (curTag != null) {
-                        if ("key" == curTag) {
-                            key = xmlParser.text
-                        } else if ("value" == curTag) {
-                            value = xmlParser.text
+                    XmlResourceParser.END_TAG -> {
+                        if (xmlParser.name == "entry") {
+                            if (key != null && value != null) {
+                                defaultsMap[key] = value
+                            }
+                            key = null
+                            value = null
+                        }
+                        curTag = null
+                    }
+                    XmlResourceParser.TEXT -> {
+                        if (curTag != null) {
+                            when (curTag) {
+                                "key" -> key = xmlParser.text
+                                "value" -> value = xmlParser.text
+                            }
                         }
                     }
                 }
                 eventType = xmlParser.next()
             }
         } catch (ex: XmlPullParserException) {
-            Timber.e(ex, "parse default values xml failed")
+            Timber.e(ex, "Parsing  default values xml failed")
         } catch (ex: IOException) {
             Timber.e(ex, "parse default values xml failed")
         }

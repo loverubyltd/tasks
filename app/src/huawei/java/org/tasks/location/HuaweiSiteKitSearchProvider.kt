@@ -47,9 +47,7 @@ class HuaweiSiteKitSearchProvider(private val activity: Activity) : PlaceSearchP
             request,
             object : SearchResultListener<QueryAutocompleteResponse> {
                 override fun onSearchResult(response: QueryAutocompleteResponse?) {
-                    response?.let {
-                        onSuccess.call(toSearchResults(it.sites))
-                    }
+                    response?.sites?.let { onSuccess.call(toSearchResults(it )) }
                 }
 
                 override fun onSearchError(status: SearchStatus) {
