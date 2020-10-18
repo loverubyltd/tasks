@@ -1,23 +1,41 @@
 package org.tasks.billing
 
-@Suppress("UNUSED_PARAMETER")
-class Purchase(json: String?) {
-    val sku: String?
-        get() = null
+import com.google.gson.GsonBuilder
+import com.huawei.hms.iap.entity.InAppPurchaseData
+import java.util.regex.Pattern
 
-    fun toJson(): String? {
-        return null
+@Suppress("UNUSED_PARAMETER")
+class Purchase(private val purchase: InAppPurchaseData) {
+
+    constructor(json: String) : this(InAppPurchaseData(json))
+
+    fun toJson(): String {
+        return GsonBuilder().create().toJson(purchase)
     }
 
+    val signature: String
+        get() = "" // FIXME
+
+    val sku: String?
+        get() = purchase.subscriptionId
+
     val isCanceled: Boolean
-        get() = false
+        get() = purchase.purchaseState == InAppPurchaseData.PurchaseState.CANCELED
+
+    val isValid: Boolean
+        get() = purchase.isSubValid
 
     val subscriptionPrice: Int
-        get() = 0
+        get() = purchase.price.toInt()
 
     val isMonthly: Boolean
-        get() = false
+        get() = purchase.daysLasted in 28..31
 
     val isProSubscription: Boolean
-        get() = false
+        get() = purchase.productGroup == PRO_PRODUCT_HROUP_NAME
+
+    companion object {
+        private val PATTERN = Pattern.compile("^(annual|monthly)_([0-1][0-9])$")
+        const val PRO_PRODUCT_HROUP_NAME = "Pro"
+    }
 }
