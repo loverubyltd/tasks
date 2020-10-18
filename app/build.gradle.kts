@@ -174,6 +174,7 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.3.0-beta01")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}")
+    implementation("androidx.lifecycle:lifecycle-common-java8:${Versions.lifecycle}")
     implementation("androidx.room:room-ktx:${Versions.room}")
     kapt("androidx.room:room-compiler:${Versions.room}")
     implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
