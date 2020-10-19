@@ -20,7 +20,7 @@ class HuaweiLocationEngineImpl(private val fusedLocationProviderClient: FusedLoc
 
     constructor(context: Context) : this(LocationServices.getFusedLocationProviderClient(context))
 
-    override fun createListener(callback: LocationEngineCallback<LocationEngineResult > ): LocationCallback =
+      fun createListener(callback: LocationEngineCallback<LocationEngineResult > ): LocationCallback =
         HuaweiLocationEngineCallbackTransport(callback)
 
     @Throws(SecurityException::class)

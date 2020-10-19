@@ -6,6 +6,7 @@ import android.content.IntentSender
 import android.text.TextUtils
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,6 +17,7 @@ import com.huawei.hms.iap.IapApiException
 import com.huawei.hms.iap.IapClient.PriceType
 import com.huawei.hms.iap.entity.OrderStatusCode
 import com.huawei.hms.iap.entity.OwnedPurchasesResult
+import com.huawei.hms.iap.entity.PurchaseIntentResult
 import com.todoroo.andlib.utility.AndroidUtilities
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.tasks.BuildConfig
@@ -109,19 +111,12 @@ class BillingClientImpl(
             iapClient = iapClient,
             productId = sku,
             type = PriceType.IN_APP_SUBSCRIPTION,
-            onSuccessListener = OnSuccessListener@{ result ->
+            onSuccessListener =    fun(result: PurchaseIntentResult) {
                 Timber.i("createPurchaseIntent, onSuccess")
-                //                if (result == null) {
-                //                    Timber.e("result is null")
-                //                    return@OnSuccessListener
-                //                }
-                val status = result.status
-                if (status == null) {
-                    Timber.e("status is null")
-                    return@OnSuccessListener
-                }
 
-                // you should pull up the page to complete the payment process.
+                val status = result.status
+                    ?: return Timber.e("status is null")
+                 // you should pull up the page to complete the payment process.
                 if (status.hasResolution()) {
                     try {
                         // status.startResolutionForResult(activity, REQ_CODE_BUY)
@@ -152,8 +147,7 @@ class BillingClientImpl(
                 } else {
                     Timber.e(exception, "Unexpected Error")
                 }
-            }
-        )
+            })
     }
 
     override fun addPurchaseCallback(onPurchasesUpdated: OnPurchasesUpdated) {
@@ -183,29 +177,27 @@ class BillingClientImpl(
             purchaseResultLauncher = registry.register(
                 "key",
                 owner,
-                ActivityResultContracts.StartIntentSenderForResult()
-            ) { result ->
-                // Handle the returned Uri
-                if (result.data == null) {
-                    Timber.e("data is null")
-                    return@register
-                }
-
-                when (SubscriptionUtils.getPurchaseResult(activity, result.data)) {
-                    OrderStatusCode.ORDER_STATE_SUCCESS -> {
-                        Toast.makeText(activity, "ORDER_STATE_SUCCESS", Toast.LENGTH_SHORT).show()
-                        // presenter.refreshSubscription()
-                        // return
-                    }
-                    OrderStatusCode.ORDER_STATE_CANCEL -> {
-                        Toast.makeText(activity, R.string.cancel, Toast.LENGTH_SHORT).show()
-                        // return
-                    }
-                    else -> {
-                        Toast.makeText(activity, " R.string.pay_fail", Toast.LENGTH_SHORT).show()
+                ActivityResultContracts.StartIntentSenderForResult(), fun(result: ActivityResult) {
+                    val data = result.data
+                        ?: return Timber.e("data is null")
+                    when (SubscriptionUtils.getPurchaseResult(activity, data)) {
+                        OrderStatusCode.ORDER_STATE_SUCCESS -> {
+                            Toast.makeText(activity, "ORDER_STATE_SUCCESS", Toast.LENGTH_SHORT)
+                                .show()
+                            // presenter.refreshSubscription()
+                            return
+                        }
+                        OrderStatusCode.ORDER_STATE_CANCEL -> {
+                            Toast.makeText(activity, R.string.cancel, Toast.LENGTH_SHORT).show()
+                            return
+                        }
+                        else -> {
+                            Toast.makeText(activity, " R.string.pay_fail", Toast.LENGTH_SHORT)
+                                .show()
+                        }
                     }
                 }
-            }
+            )
         }
 
 

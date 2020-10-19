@@ -22,6 +22,7 @@ import com.huawei.hms.iap.entity.InAppPurchaseData
 import com.huawei.hms.iap.entity.OrderStatusCode
 import com.huawei.hms.iap.entity.OwnedPurchasesResult
 import org.json.JSONException
+import org.tasks.R
 import timber.log.Timber
 
 /**
@@ -43,7 +44,7 @@ object SubscriptionUtils {
      */
     fun shouldOfferService(result: OwnedPurchasesResult?, productId: String): Boolean {
         if (null == result) {
-            TImber.e("OwnedPurchasesResult is null")
+            Timber.e("OwnedPurchasesResult is null")
             return false
         }
         val inAppPurchaseDataList = result.inAppPurchaseDataList
@@ -53,8 +54,8 @@ object SubscriptionUtils {
                 if (productId == inAppPurchaseData.productId) {
                     val index = inAppPurchaseDataList.indexOf(data)
                     val signature = result.inAppSignature[index]
-                    val credible: Boolean =
-                        Security.verify(data, signature, Security.getPublicKey())
+                    val credible: Boolean = false
+                    // FIXME Security.verify(data, signature, Security.getPublicKey())
                     return if (credible) {
                         inAppPurchaseData.isSubValid
                     } else {
@@ -77,8 +78,9 @@ object SubscriptionUtils {
      * @param data the intent from onActivityResult
      * @return result status
      */
-    fun getPurchaseResult(activity: Activity?, data: Intent?): Int {
+    fun getPurchaseResult(activity: Activity, data: Intent): Int {
         val purchaseResultInfo = Iap.getIapClient(activity).parsePurchaseResultInfoFromIntent(data)
+
         if (null == purchaseResultInfo) {
             Timber.e("PurchaseResultInfo is null")
             return OrderStatusCode.ORDER_STATE_FAILED
@@ -92,12 +94,12 @@ object SubscriptionUtils {
             }
             OrderStatusCode.ORDER_STATE_SUCCESS -> {
                 val credible: Boolean = Security.verifyPurchase(
-                    context
+                    activity.getString(R.string.huawei_key),
                     purchaseResultInfo.inAppPurchaseData,
                     purchaseResultInfo.inAppDataSignature
                 )
 
-                verifySignature(purchase)
+                // verifySignature(purchase)
 
                 purchaseResultInfo.inAppDataSignature
 

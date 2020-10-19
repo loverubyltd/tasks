@@ -51,7 +51,7 @@ class GeofenceApi @Inject constructor(
             settingsClient.checkLocationSettings(locationSettingsRequest)
 
         locationSettingsResponseTasks.addOnSuccessListener { response ->
-            Log.i(TAG, "check location settings success")
+            Timber.i(  "check location settings success")
         }
 
         val client = LocationServices.getGeofenceService(context)
