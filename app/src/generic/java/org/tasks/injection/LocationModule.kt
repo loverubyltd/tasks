@@ -26,4 +26,10 @@ class LocationModule {
     fun getMapFragment(@ApplicationContext context: Context): MapFragment {
         return MapboxMapFragment(context)
     }
+
+    @Provides
+    @ActivityScoped
+    fun getLocationEngine(@ApplicationContext context: Context): LocationEngine {
+        return LocationEngineProvider.getBestLocationEngine(this)
+    }
 }

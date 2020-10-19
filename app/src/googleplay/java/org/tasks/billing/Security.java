@@ -76,9 +76,8 @@ class Security {
       // "RSA" is guaranteed to be available.
       throw new RuntimeException(e);
     } catch (InvalidKeySpecException e) {
-      String msg = "Invalid key specification: " + e;
-      BillingHelper.logWarn(TAG, msg);
-      throw new IOException(msg);
+      Timber.w(e, "Invalid key specification: "  )
+      throw new IOException(msg)
     }
   }
 

@@ -6,12 +6,18 @@ import java.util.regex.Pattern
 
 @Suppress("UNUSED_PARAMETER")
 class Purchase(private val purchase: InAppPurchaseData) {
+    private var _originalJson: String? = null
 
-    constructor(json: String) : this(InAppPurchaseData(json))
+    constructor(json: String) : this(InAppPurchaseData(json)) {
+        _originalJson = json
+    }
 
     fun toJson(): String {
         return GsonBuilder().create().toJson(purchase)
     }
+
+    val originalJson: String
+        get() = _originalJson ?: toJson()
 
     val signature: String
         get() = "" // FIXME

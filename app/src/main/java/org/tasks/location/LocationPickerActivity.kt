@@ -24,6 +24,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.Behavior.DragCallback
 import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.mapbox.android.core.location.LocationEngine
 import com.mapbox.android.core.location.LocationEngineCallback
 import com.mapbox.android.core.location.LocationEngineProvider
 import com.mapbox.android.core.location.LocationEngineResult
@@ -90,6 +91,7 @@ class LocationPickerActivity : InjectingAppCompatActivity(), Toolbar.OnMenuItemC
     @Inject lateinit var theme: Theme
     @Inject lateinit var toaster: Toaster
     @Inject lateinit var locationDao: LocationDao
+    @Inject lateinit var locationEngine: LocationEngine
     @Inject lateinit var searchProvider: PlaceSearchProvider
     @Inject lateinit var permissionChecker: PermissionChecker
     @Inject lateinit var permissionRequestor: ActivityPermissionRequestor
@@ -259,7 +261,7 @@ class LocationPickerActivity : InjectingAppCompatActivity(), Toolbar.OnMenuItemC
 
     @SuppressLint("MissingPermission")
     private fun moveToCurrentLocation(animate: Boolean) {
-        LocationEngineProvider.getBestLocationEngine(this)
+        locationEngine
                 .getLastLocation(
                         object : LocationEngineCallback<LocationEngineResult> {
                             override fun onSuccess(result: LocationEngineResult) {

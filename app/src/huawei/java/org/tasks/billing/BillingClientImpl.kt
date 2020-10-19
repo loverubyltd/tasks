@@ -6,7 +6,11 @@ import android.content.IntentSender
 import android.text.TextUtils
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.huawei.hms.iap.Iap
 import com.huawei.hms.iap.IapApiException
 import com.huawei.hms.iap.IapClient.PriceType
@@ -15,6 +19,7 @@ import com.huawei.hms.iap.entity.OwnedPurchasesResult
 import com.todoroo.andlib.utility.AndroidUtilities
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.tasks.BuildConfig
+import org.tasks.R
 import org.tasks.analytics.Firebase
 import timber.log.Timber
 
@@ -122,7 +127,8 @@ class BillingClientImpl(
                         // status.startResolutionForResult(activity, REQ_CODE_BUY)
                         val pendingIntent = status.getPendingIntent()
                         if (pendingIntent != null) {
-                            val request = IntentSenderRequest.Builder(pendingIntent.intentSender).build()
+                            val request =
+                                IntentSenderRequest.Builder(pendingIntent.intentSender).build()
 
                             purchaseLifecycleObserver!!.purchaseThing(request)
                         }
@@ -162,11 +168,55 @@ class BillingClientImpl(
     }
 
 
+    private class PurchaseLifecycleObserver(private val activity: ComponentActivity) :
+        DefaultLifecycleObserver {
+
+        private val registry = activity.activityResultRegistry
+
+        init {
+            activity.lifecycle.addObserver(this)
+        }
+
+        private lateinit var purchaseResultLauncher: ActivityResultLauncher<IntentSenderRequest>
+
+        override fun onCreate(owner: LifecycleOwner) {
+            purchaseResultLauncher = registry.register(
+                "key",
+                owner,
+                ActivityResultContracts.StartIntentSenderForResult()
+            ) { result ->
+                // Handle the returned Uri
+                if (result.data == null) {
+                    Timber.e("data is null")
+                    return@register
+                }
+
+                when (SubscriptionUtils.getPurchaseResult(activity, result.data)) {
+                    OrderStatusCode.ORDER_STATE_SUCCESS -> {
+                        Toast.makeText(activity, "ORDER_STATE_SUCCESS", Toast.LENGTH_SHORT).show()
+                        // presenter.refreshSubscription()
+                        // return
+                    }
+                    OrderStatusCode.ORDER_STATE_CANCEL -> {
+                        Toast.makeText(activity, R.string.cancel, Toast.LENGTH_SHORT).show()
+                        // return
+                    }
+                    else -> {
+                        Toast.makeText(activity, " R.string.pay_fail", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
+
+        fun purchaseThing(request: IntentSenderRequest) {
+            purchaseResultLauncher.launch(request)
+        }
+
+    }
+
     companion object {
         const val TYPE_SUBS: String = PriceType.IN_APP_SUBSCRIPTION.toString()
-
-        /** requestCode for pull up the pmsPay page  */
-        const val REQ_CODE_BUY = 4002
 
         fun PurchaseResponseToString(response: Int): String? {
             return when (response) {
@@ -193,5 +243,4 @@ class BillingClientImpl(
         }
     }
 }
-
 

@@ -1,23 +1,23 @@
 /**
  * Copyright 2020. Huawei Technologies Co., Ltd. All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package org.tasks.billing
 
-import android.text.TextUtils
 import android.util.Base64
 import timber.log.Timber
+import java.io.IOException
 import java.io.UnsupportedEncodingException
 import java.security.*
 import java.security.spec.InvalidKeySpecException
@@ -25,35 +25,74 @@ import java.security.spec.X509EncodedKeySpec
 
 object Security {
 
-    private const val TAG = "HMS_LOG_CipherUtil"
-    private const val SIGN_ALGORITHMS = "SHA256WithRSA"
+    private const val KEY_FACTORY_ALGORITHM = "RSA"
+    private const val SIGNATURE_ALGORITHM = "SHA256WithRSA"
 
     /**
-     * To check the signature for the data returned from the interface.
+     * Verifies that the data was signed with the given signature, and returns the verified purchase.
      *
-     * @param content Unsigned data.
-     * @param sign the signature for content.
-     * @param publicKey the public key of the application.
-     *
-     * @return boolean
+     * @param base64PublicKey the base64-encoded public key to use for verifying.
+     * @param signedData the signed JSON string (signed, not encrypted)
+     * @param signature the signature for the data, signed with the private key
+     * @throws IOException if encoding algorithm is not supported or key specification is invalid
      */
-    fun doCheck(content: String, sign: String?, publicKey: String?): Boolean {
-        if (TextUtils.isEmpty(publicKey)) {
-            Timber.e( "publicKey is null")
+    @Throws(IOException::class)
+    @JvmStatic
+    fun verifyPurchase(base64PublicKey: String, signedData: String, signature: String): Boolean {
+        if (signedData.isBlank() || base64PublicKey.isBlank() || signature.isBlank()) {
+            Timber.w("Purchase verification failed: missing data.")
             return false
         }
+
+        val key: PublicKey = generatePublicKey(base64PublicKey)
+        return verify(key, signedData, signature)
+    }
+
+    /**
+     * Generates a PublicKey instance from a string containing the Base64-encoded public key.
+     *
+     * @param encodedPublicKey Base64-encoded public key
+     * @throws IOException if encoding algorithm is not supported or key specification is invalid
+     */
+    @Throws(IOException::class)
+    private fun generatePublicKey(encodedPublicKey: String): PublicKey {
+        return try {
+            val decodedKey = Base64.decode(encodedPublicKey, Base64.DEFAULT)
+            val keyFactory = KeyFactory.getInstance(KEY_FACTORY_ALGORITHM)
+            keyFactory.generatePublic(X509EncodedKeySpec(decodedKey))
+        } catch (e: NoSuchAlgorithmException) {
+            // "RSA" is guaranteed to be available.
+            throw RuntimeException(e)
+        } catch (e: InvalidKeySpecException) {
+            Timber.w(e, "Invalid key specification")
+            throw IOException("Invalid key specification: $e")
+        }
+    }
+
+    /**
+     * Verifies that the signature from the server matches the computed signature on the data. Returns
+     * true if the data is correctly signed.
+     *
+     * @param publicKey public key associated with the developer account
+     * @param signedData signed data from server
+     * @param signature server signature
+     * @return true if the data and signature match
+     */
+    private fun verify(publicKey: PublicKey, signedData: String, signature: String?): Boolean {
+        val signatureBytes: ByteArray = try {
+            Base64.decode(signature, Base64.DEFAULT)
+        } catch (e: IllegalArgumentException) {
+            Timber.w("Base64 decoding failed.")
+            return false
+        }
+
         try {
-            val keyFactory = KeyFactory.getInstance("RSA")
-            val encodedKey = Base64.decode(publicKey, Base64.DEFAULT)
-            val pubKey = keyFactory.generatePublic(X509EncodedKeySpec(encodedKey))
-            val signature = Signature.getInstance(SIGN_ALGORITHMS)
-            signature.initVerify(pubKey)
-            signature.update(content.toByteArray(charset("utf-8")))
-            return signature.verify(Base64.decode(sign, Base64.DEFAULT))
-        } catch (ex: NoSuchAlgorithmException) {
-            Timber.e(ex, "doCheck NoSuchAlgorithmException ")
-        } catch (ex: InvalidKeySpecException) {
-            Timber.e(ex, "doCheck InvalidKeySpecException ")
+            return Signature.getInstance(SIGNATURE_ALGORITHM).apply {
+                initVerify(publicKey)
+                update(signedData.toByteArray(charset("utf-8")))
+            }.verify(signatureBytes).also {
+                if (!it) Timber.w("Signature verification failed.")
+            }
         } catch (ex: InvalidKeyException) {
             Timber.e(ex, "doCheck InvalidKeyException ")
         } catch (ex: SignatureException) {

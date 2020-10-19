@@ -4,9 +4,8 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import com.huawei.hms.location.Geofence
-import com.huawei.hms.location.GeofenceRequest
-import com.huawei.hms.location.LocationServices
+import com.huawei.hmf.tasks.Task
+import com.huawei.hms.location.*
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.tasks.data.LocationDao
 import org.tasks.data.MergedGeofence
@@ -14,6 +13,7 @@ import org.tasks.data.Place
 import org.tasks.preferences.PermissionChecker
 import timber.log.Timber
 import javax.inject.Inject
+
 
 class GeofenceApi @Inject constructor(
     @param:ApplicationContext private val context: Context,
@@ -32,6 +32,28 @@ class GeofenceApi @Inject constructor(
         if (place == null || !permissionChecker.canAccessBackgroundLocation()) {
             return
         }
+
+        val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
+        val settingsClient = LocationServices.getSettingsClient(context)
+
+        val locationRequest = LocationRequest().apply {
+            interval = 5000
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+       }
+        val locationSettingsRequest = LocationSettingsRequest.Builder().apply {
+            addLocationRequest(locationRequest)
+        }.build()
+
+
+
+          // Before requesting location update, invoke checkLocationSettings to check device settings.
+        val locationSettingsResponseTasks: Task<LocationSettingsResponse> =
+            settingsClient.checkLocationSettings(locationSettingsRequest)
+
+        locationSettingsResponseTasks.addOnSuccessListener { response ->
+            Log.i(TAG, "check location settings success")
+        }
+
         val client = LocationServices.getGeofenceService(context)
         val geofence = locationDao.getGeofencesByPlace(place.uid!!)
         if (geofence != null) {
