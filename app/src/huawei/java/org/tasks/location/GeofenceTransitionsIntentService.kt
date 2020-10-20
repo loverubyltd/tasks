@@ -67,7 +67,7 @@ class GeofenceTransitionsIntentService : InjectingJobIntentService() {
 
     private fun toNotification(
         place: Place,
-        geofence: org.tasks.data.Geofence ,
+        geofence: org.tasks.data.Geofence,
         arrival: Boolean
     ): Notification = Notification().apply {
         taskId = geofence.task

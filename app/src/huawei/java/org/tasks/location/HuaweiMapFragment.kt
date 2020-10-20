@@ -4,8 +4,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
-import com.huawei.hms.maps.*
+import com.huawei.hms.maps.CameraUpdateFactory
+import com.huawei.hms.maps.HuaweiMap
 import com.huawei.hms.maps.HuaweiMap.OnMarkerClickListener
+import com.huawei.hms.maps.OnMapReadyCallback
+import com.huawei.hms.maps.SupportMapFragment
 import com.huawei.hms.maps.model.*
 import org.tasks.R
 import org.tasks.data.Place
@@ -90,7 +93,8 @@ class HuaweiMapFragment(private val context: Context) : MapFragment, OnMapReadyC
                 isMyLocationButtonEnabled = false
                 isRotateGesturesEnabled = false
             }
-            setOnMarkerClickListener(this@HuaweiMapFragment)
+
+          setOnMarkerClickListener(this@HuaweiMapFragment)
             if (dark) {
                 setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.mapstyle_night))
             }

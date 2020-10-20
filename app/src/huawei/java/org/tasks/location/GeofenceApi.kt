@@ -39,19 +39,18 @@ class GeofenceApi @Inject constructor(
         val locationRequest = LocationRequest().apply {
             interval = 5000
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-       }
+        }
         val locationSettingsRequest = LocationSettingsRequest.Builder().apply {
             addLocationRequest(locationRequest)
         }.build()
 
 
-
-          // Before requesting location update, invoke checkLocationSettings to check device settings.
+        // Before requesting location update, invoke checkLocationSettings to check device settings.
         val locationSettingsResponseTasks: Task<LocationSettingsResponse> =
             settingsClient.checkLocationSettings(locationSettingsRequest)
 
         locationSettingsResponseTasks.addOnSuccessListener { response ->
-            Timber.i(  "check location settings success")
+            Timber.i("check location settings success")
         }
 
         val client = LocationServices.getGeofenceService(context)

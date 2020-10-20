@@ -16,11 +16,11 @@ import com.mapbox.android.core.location.LocationEngineResult
 
 
 class HuaweiLocationEngineImpl(private val fusedLocationProviderClient: FusedLocationProviderClient) :
-    LocationEngine  {
+    LocationEngine {
 
     constructor(context: Context) : this(LocationServices.getFusedLocationProviderClient(context))
 
-      fun createListener(callback: LocationEngineCallback<LocationEngineResult > ): LocationCallback =
+    fun createListener(callback: LocationEngineCallback<LocationEngineResult>): LocationCallback =
         HuaweiLocationEngineCallbackTransport(callback)
 
     @Throws(SecurityException::class)
@@ -45,7 +45,6 @@ class HuaweiLocationEngineImpl(private val fusedLocationProviderClient: FusedLoc
     }
 
 
-
     @Throws(SecurityException::class)
     override fun requestLocationUpdates(
         request: LocationEngineRequest,
@@ -58,9 +57,9 @@ class HuaweiLocationEngineImpl(private val fusedLocationProviderClient: FusedLoc
     }
 
     override fun removeLocationUpdates(callback: LocationEngineCallback<LocationEngineResult>) =
-        removeLocationUpdates(HuaweiLocationEngineCallbackTransport  (callback) )
+        removeLocationUpdates(HuaweiLocationEngineCallbackTransport(callback))
 
-      fun removeLocationUpdates(listener: LocationCallback) {
+    fun removeLocationUpdates(listener: LocationCallback) {
         fusedLocationProviderClient.removeLocationUpdates(listener)
     }
 
@@ -105,7 +104,9 @@ class HuaweiLocationEngineImpl(private val fusedLocationProviderClient: FusedLoc
         OnSuccessListener<Location?>, OnFailureListener {
         override fun onSuccess(location: Location?) {
             callback.onSuccess(
-                if (location != null) LocationEngineResult.create(location) else LocationEngineResult.create(listOf())
+                if (location != null) LocationEngineResult.create(location) else LocationEngineResult.create(
+                    listOf()
+                )
             )
         }
 

@@ -1,7 +1,6 @@
 package org.tasks.location
 
 import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import androidx.annotation.DrawableRes
 import com.huawei.hms.site.api.SearchResultListener
@@ -47,7 +46,7 @@ class HuaweiSiteKitSearchProvider(private val activity: Activity) : PlaceSearchP
             request,
             object : SearchResultListener<QueryAutocompleteResponse> {
                 override fun onSearchResult(response: QueryAutocompleteResponse?) {
-                    response?.sites?.let { onSuccess.call(toSearchResults(it )) }
+                    response?.sites?.let { onSuccess.call(toSearchResults(it)) }
                 }
 
                 override fun onSearchError(status: SearchStatus) {
