@@ -61,7 +61,7 @@
 -dontnote sun.misc.Unsafe
 -dontwarn sun.misc.Unsafe
 
-
+-ignorewarnings
 -keepattributes *Annotation*
 -keepattributes Exceptions
 -keepattributes InnerClasses
@@ -70,3 +70,8 @@
 -keep class com.hianalytics.android.**{*;}
 -keep class com.huawei.updatesdk.**{*;}
 -keep class com.huawei.hms.**{*;}
+-keep class com.huawei.cloud.services.drive.**{*;}
+-keep class com.huawei.cloud.base.** {*;}
+-keep class com.huawei.cloud.client.** {*;}
+-keep class com.huawei.cloud.base.json.JsonError{*;}
+-keep class com.huawei.cloud.base.json.JsonErrorContainer{*;}
