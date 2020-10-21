@@ -9,4 +9,6 @@
   <string name="p_purchases">purchases</string>
   <string name="manage_subscription_url">https://cloud.huawei.com/store/account/subscriptions?sku=%s&amp;package=org.tasks</string>
   <string name="support_email">tasksorg-support@iloveruby.co.uk</string>>
+
+  <string name="p_huawei_drive_backup_folder">p_huawei_drive_backup_folder</string>
 </resources>
