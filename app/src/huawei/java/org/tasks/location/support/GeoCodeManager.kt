@@ -1,13 +1,12 @@
-package org.tasks.location
+package org.tasks.location.support
 
 import android.content.Context
 import at.bitfire.cert4android.CustomCertManager
 import at.bitfire.dav4jvm.BasicDigestAuthHandler
-import com.google.gson.*
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.huawei.hmf.tasks.Task
-import com.huawei.hms.site.api.model.AddressDetail
 import com.huawei.hms.site.api.model.Coordinate
-import com.huawei.hms.site.api.model.Poi
 import com.huawei.hms.site.api.model.Site
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.HttpUrl
@@ -15,12 +14,11 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.internal.tls.OkHostnameVerifier
-import org.gradle.internal.impldep.software.amazon.ion.system.IonTextWriterBuilder.json
 import org.tasks.DebugNetworkInterceptor
+import org.tasks.R
 import org.tasks.caldav.MemoryCookieStore
 import org.tasks.preferences.Preferences
 import org.tasks.security.KeyStoreEncryption
-import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.net.ssl.SSLContext
@@ -28,12 +26,17 @@ import javax.net.ssl.SSLContext
 
 class GeoCodeManager {
     private val interceptor: DebugNetworkInterceptor
-    val httpClient: OkHttpClient?
+    private val httpClient: OkHttpClient?
     private val httpUrl: HttpUrl?
     private val context: Context
     private val basicDigestAuthHandler: BasicDigestAuthHandler?
     private var foreground = false
 
+    private val gson: Gson = GsonBuilder().registerTypeAdapter(
+            ReverseGeocodeResponse::class.java,
+            ReverseGeocodeResponseDeserializer()
+        )
+        .create()
 
     @Inject
     internal constructor(
@@ -82,8 +85,6 @@ class GeoCodeManager {
         httpUrl = url?.toHttpUrlOrNull()
     }
 
-
-    data class ReverseGeocodeRequest(val location: Coordinate)
 
     val JSON = """{
    "returnCode":"0",
@@ -138,75 +139,6 @@ class GeoCodeManager {
    "returnDesc":"OK"
 }"""
 
-    data class ReverseGeocodeResponse(
-        val returnCode: Int
-        val sites: List<Site>
-        val returnDesc: String
-    )
-
-    class ReverseGeocodeResponseDeserializer : JsonDeserializer<ReverseGeocodeResponse> {
-
-        fun deserializeAddress(jsonElement: JsonElement): AddressDetail {
-            val jsonObject = jsonElement.asJsonObject
-
-            return AddressDetail().apply {
-                country = jsonObject.get("country").asString
-                countryCode = jsonObject.get("countryCode").asString
-                subLocality = jsonObject.get("subLocality").asString
-                postalCode = jsonObject.get("postalCode").asString
-                locality = jsonObject.get("locality").asString
-                adminArea = jsonObject.get("adminArea").asString
-                subAdminArea = jsonObject.get("subAdminArea").asString
-                thoroughfare = jsonObject.get("thoroughfare").asString
-            }
-        }
-
-        fun deserializePoi(jsonElement: JsonElement): Poi {
-            val jsonObject = jsonElement.asJsonObject
-
-            return Poi().apply {
-                hwPoiTypes = jsonObject.get("hwPoiTypes").asJsonArray.map {
-                    it.asString
-                }.toTypedArray()
-                poiTypes = jsonObject.get("poiTypes").asJsonArray.map {
-                    it.asString
-                }.toTypedArray()
-                rating = jsonObject.get("ratingg").asDouble
-            }
-        }
-
-        fun deserializeSite(json: JsonElement): Site {
-            val jsonObject = json.asJsonObject
-
-            return Site().apply {
-                formatAddress = jsonObject.get("formatAddress").asString
-                address = deserializeAddress(jsonObject.get("address"))
-                // viewPort = null
-                name = jsonObject.get("name").asString
-                poi = deserializePoi(jsonObject.get("poi"))
-
-            }
-        }
-
-        override fun deserialize(
-            json: JsonElement?,
-            typeOfT: Type?,
-            context: JsonDeserializationContext?
-        ): ReverseGeocodeResponse {
-
-            val jsonObject = json.asJsonObject
-
-            return ReverseGeocodeResponse(
-                jsonObject.get("returnCode").asInt,
-                jsonObject.get("sites").asJsonArray.map {
-                    deserializeSite(it)
-                },
-                jsonObject.get("returnDesc").asString
-            )
-        }
-
-    }
-
 
     var reverseGeocodeResponse: ReverseGeocodeResponse? = null
     public fun reverseGeocode(lat: Double, lng: Double): Task<Site> {
@@ -219,8 +151,8 @@ class GeoCodeManager {
 
         val url =
             "https://siteapi.cloud.huawei.com/mapApi/v1/siteService/reverseGeocode?key=" + android.net.Uri.encode(
-                ApiKey
-            );
+                context.getString(R.string.huawei_key)
+            )
 
         val request = Request.Builder()
             .get()
@@ -230,7 +162,7 @@ class GeoCodeManager {
         httpClient.newCall(request).execute().use { response ->
             response.body
 
-            var gson: Gson = GsonBuilder()
+            val gson: Gson = GsonBuilder()
                 .registerTypeAdapter(
                     ReverseGeocodeResponse::class.java,
                     ReverseGeocodeResponseDeserializer()
@@ -238,10 +170,8 @@ class GeoCodeManager {
                 .create()
 
             reverseGeocodeResponse = gson.fromJson(JSON, ReverseGeocodeResponse::class.java)
-
-
         }
 
-        return reverseGeocodeResponse.sites.firstOrNull
+        return reverseGeocodeResponse.sites.firstOrNull()
     }
 }

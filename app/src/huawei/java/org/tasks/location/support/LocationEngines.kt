@@ -1,4 +1,4 @@
-package org.tasks.location
+package org.tasks.location.support
 
 import com.mapbox.android.core.location.LocationEngine
 

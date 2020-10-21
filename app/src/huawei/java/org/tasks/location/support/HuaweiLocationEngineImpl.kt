@@ -1,4 +1,4 @@
-package org.tasks.location
+package org.tasks.location.support
 
 
 import android.app.PendingIntent
@@ -31,7 +31,6 @@ class HuaweiLocationEngineImpl(private val fusedLocationProviderClient: FusedLoc
     }
 
     @Throws(SecurityException::class)
-
     override fun requestLocationUpdates(
         request: LocationEngineRequest,
         callback: LocationEngineCallback<LocationEngineResult>,
@@ -43,7 +42,6 @@ class HuaweiLocationEngineImpl(private val fusedLocationProviderClient: FusedLoc
             looper
         )
     }
-
 
     @Throws(SecurityException::class)
     override fun requestLocationUpdates(
@@ -112,7 +110,5 @@ class HuaweiLocationEngineImpl(private val fusedLocationProviderClient: FusedLoc
 
         override fun onFailure(e: Exception) = callback.onFailure(e)
     }
-
-
 }
 
