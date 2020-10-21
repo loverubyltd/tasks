@@ -79,17 +79,12 @@ object TitleParser {
 
     private fun strToPriority(priorityStr: String?): Int {
         priorityStr?.toLowerCase()?.trim { it <= ' ' }
-        var priority = Task.Priority.HIGH
-        if ("0" == priorityStr || "!0" == priorityStr || "least" == priorityStr || "lowest" == priorityStr) {
-            priority = Task.Priority.NONE
+        return when (priorityStr) {
+            "0", "!0", "least", "lowest" -> Task.Priority.NONE
+            "!", "!1", "bang", "1", "low" -> Task.Priority.LOW
+            "!!", "!2", "bang bang", "2", "high" -> Task.Priority.MEDIUM
+            else -> Task.Priority.HIGH
         }
-        if ("!" == priorityStr || "!1" == priorityStr || "bang" == priorityStr || "1" == priorityStr || "low" == priorityStr) {
-            priority = Task.Priority.LOW
-        }
-        if ("!!" == priorityStr || "!2" == priorityStr || "bang bang" == priorityStr || "2" == priorityStr || "high" == priorityStr) {
-            priority = Task.Priority.MEDIUM
-        }
-        return priority
     }
 
     // priorityHelper parses the string and sets the Task's importance

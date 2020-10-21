@@ -141,7 +141,7 @@ class GeoCodeManager {
 
 
     var reverseGeocodeResponse: ReverseGeocodeResponse? = null
-    public fun reverseGeocode(lat: Double, lng: Double): Task<Site> {
+    public fun reverseGeocode(lat: Double, lng: Double):  Site?  {
         var result = ""
 
         val location: Coordinate = Coordinate(lat, lng)
@@ -159,19 +159,21 @@ class GeoCodeManager {
             .url(url)
             .build()
 
-        httpClient.newCall(request).execute().use { response ->
-            response.body
+        if (httpClient != null) {
+            httpClient.newCall(request).execute().use { response ->
+                response.body
 
-            val gson: Gson = GsonBuilder()
-                .registerTypeAdapter(
-                    ReverseGeocodeResponse::class.java,
-                    ReverseGeocodeResponseDeserializer()
-                )
-                .create()
+                val gson: Gson = GsonBuilder()
+                    .registerTypeAdapter(
+                        ReverseGeocodeResponse::class.java,
+                        ReverseGeocodeResponseDeserializer()
+                    )
+                    .create()
 
-            reverseGeocodeResponse = gson.fromJson(JSON, ReverseGeocodeResponse::class.java)
+                reverseGeocodeResponse = gson.fromJson(JSON, ReverseGeocodeResponse::class.java)
+            }
         }
 
-        return reverseGeocodeResponse.sites.firstOrNull()
+        return reverseGeocodeResponse?.sites?.firstOrNull()
     }
 }

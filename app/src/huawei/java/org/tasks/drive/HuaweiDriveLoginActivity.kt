@@ -51,7 +51,7 @@ class HuaweiDriveLoginActivity : InjectingAppCompatActivity() {
          * please go to Client Development > Obtaining Authentication Information > Store Authentication Information
          * in the HUAWEI Drive Kit Development Guide.
          **/
-        return@AccessMethod credentialManager.credential.accessToken
+        return@AccessMethod credentialManager.credential?.accessToken
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

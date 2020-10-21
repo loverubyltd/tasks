@@ -88,7 +88,7 @@ class ThemePickerDialog : DialogFragment() {
                         Handler().post {
                             ThemeBase(which).setDefaultNightMode()
                             activity?.recreate()
-                            activity?.overridePendingTransition(R.anim.fragment_fade_enter, R.anim.fragment_fade_exit)
+                            //activity?.overridePendingTransition(R.anim.fragment_fade_enter, R.anim.fragment_fade_exit)
                         }
                     }
                 }

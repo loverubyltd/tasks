@@ -29,7 +29,7 @@ class HuaweiDriveInvoker @Inject constructor(
     private val credentialManager: HuaweiDriveCredentialManager
 ) {
     private val credential: DriveCredential? = credentialManager.credential
-    private val service = Drive.Builder(credential).apply {
+    private val service = Drive.Builder(credential, context).apply {
         applicationName = String.format("Tasks/%s", BuildConfig.VERSION_NAME)
     }.build()
 

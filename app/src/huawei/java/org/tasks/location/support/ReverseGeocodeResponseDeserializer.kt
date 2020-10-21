@@ -59,8 +59,9 @@ class ReverseGeocodeResponseDeserializer : JsonDeserializer<ReverseGeocodeRespon
         json: JsonElement?,
         typeOfT: Type?,
         context: JsonDeserializationContext?
-    ): ReverseGeocodeResponse {
-        val jsonObject = json.asJsonObject
+    ): ReverseGeocodeResponse? {
+        val jsonObject = json?.asJsonObject
+            ?: return null
         return ReverseGeocodeResponse(
             jsonObject.get("returnCode").asInt,
             jsonObject.get("sites").asJsonArray.map {
