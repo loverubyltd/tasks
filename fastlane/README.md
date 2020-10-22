@@ -31,6 +31,16 @@ Submit a new Beta Build to Crashlytics Beta
 fastlane android deploy
 ```
 Deploy a new version to the Google Play
+### android ag_deploy
+```
+fastlane android ag_deploy
+```
+Deploy a new version to Huawei AppGallery
+### android ag_get_info
+```
+fastlane android ag_get_info
+```
+Get  information about current Huawei AppGallery versions
 
 ----
 

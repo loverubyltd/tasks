@@ -8,5 +8,7 @@ build/
 local.properties
 Thumbs.db
 /captures/
+/fastlane/.env*
+!/fastlane/.env.sample
 /fastlane/report.xml
 app/src/huawei/agconnect-services.json
