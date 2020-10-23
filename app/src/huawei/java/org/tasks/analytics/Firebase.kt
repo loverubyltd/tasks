@@ -3,7 +3,6 @@ package org.tasks.analytics
 
 import android.content.Context
 import android.content.res.XmlResourceParser
-import android.os.Bundle
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.annotation.XmlRes
@@ -65,16 +64,13 @@ class Firebase @Inject constructor(
     }
 
     fun logEvent(@StringRes event: Int, vararg p: Pair<Int, Any>) {
-        analytics?.onEvent(context.getString(event), Bundle().apply {
-            p.forEach {
-                val key = context.getString(it.first)
-                when (it.second::class) {
-                    String::class -> putString(key, it.second as String)
-                    Boolean::class -> putBoolean(key, it.second as Boolean)
-                    else -> Timber.e("Unhandled param: $it")
-                }
-            }
-        })
+        val keyValuePairs: Array<Pair<String, Any>> = p.map { (keyResId, value) ->
+            Pair(context.getString(keyResId), value)
+        }.toTypedArray()
+
+        p.mapTo([], )
+
+        analytics?.onEvent(context.getString(event), bundleOf(*keyValuePairs))
     }
 
     fun noChurn(): Boolean = remoteConfig?.getValueAsBoolean("no_churn") ?: false

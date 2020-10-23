@@ -7,9 +7,10 @@ import android.content.IntentSender
 import com.huawei.hms.support.api.client.Status
 
 object FIeldHelper {
-    inline fun <K, reified T> getFieldValue(javaClazz: Class<K>, fieldName: String): T? {
-        val field = javaClass.getDeclaredField(fieldName).also { it.isAccessible = true }
-        return field.get(javaClass) as? T?
+    inline fun <K, reified T> getFieldValue(clazz: Class<K>, fieldName: String): T? {
+        return clazz.getDeclaredField(fieldName)
+            .apply { isAccessible = true }
+            .get(javaClass) as? T?
     }
 }
 

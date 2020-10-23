@@ -9,6 +9,7 @@ import com.huawei.cloud.base.http.InputStreamContent
 import com.huawei.cloud.base.json.GenericJson
 import com.huawei.cloud.services.drive.Drive
 import com.huawei.cloud.services.drive.DriveRequest
+import com.huawei.cloud.services.drive.model.About
 import com.huawei.cloud.services.drive.model.File
 import com.todoroo.astrid.backup.BackupConstants
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -33,6 +34,10 @@ class HuaweiDriveInvoker @Inject constructor(
         applicationName = String.format("Tasks/%s", BuildConfig.VERSION_NAME)
     }.build()
 
+    @Throws(IOException::class)
+    suspend fun about(): About? {
+        return execute(service.about().get().set("fields", "*"))
+    }
 
     @Throws(IOException::class)
     suspend fun getFile(folderId: String?): File? {
@@ -87,7 +92,10 @@ class HuaweiDriveInvoker @Inject constructor(
             mimeType = mime
             fileName = FileHelper.getFilename(context, uri)
         }
-        val content = InputStreamContent(mime, context.contentResolver.openInputStream(uri))
+        val inputStream = context.contentResolver.openInputStream(uri!!)
+        val file = java.io.File(uri.path)
+        val content = InputStreamContent(mime, inputStream)
+            .setLength(file.length())
         return execute(service.files().create(metadata, content))
     }
 

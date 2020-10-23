@@ -82,6 +82,5 @@ class HuaweiSiteKitSearchProvider(private val activity: Activity) : PlaceSearchP
         longitude = location.lng
     }
 
-    companion object {
-    }
+    companion object
 }

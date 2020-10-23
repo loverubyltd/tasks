@@ -3,7 +3,6 @@ package org.tasks.billing
 import android.app.Activity
 import android.content.Context
 import android.content.IntentSender
-import android.text.TextUtils
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResult
@@ -55,7 +54,7 @@ class BillingClientImpl(
                 Timber.e(
                     "obtainOwnedPurchases, type=%s, %s",
                     TYPE_SUBS,
-                    e!!.message
+                    e.message
                 )
                 if (e.statusCode == OrderStatusCode.ORDER_HWID_NOT_LOGIN) {
                     Toast.makeText(
@@ -87,16 +86,19 @@ class BillingClientImpl(
         }
         Timber.d("Query inventory was successful.")
 
-        // Update the UI and purchases inventory with new list of purchases
-        if (TextUtils.isEmpty(result.continuationToken)) {
-            inventory.clear()
-        }
 
-        val purchases = result.inAppPurchaseDataList.map { Purchase(it) }
-        inventory.add(purchases)
+        result.run {
 
-        if (!TextUtils.isEmpty(result.continuationToken)) {
-            queryPurchasesInternal(result.continuationToken)
+            // Update the UI and purchases inventory with new list of purchases
+            if ((continuationToken).isBlank()) {
+                inventory.clear()
+            }
+
+            inventory.add(inAppPurchaseDataList.map { Purchase(it) })
+
+            if (!continuationToken.isBlank()) {
+                queryPurchasesInternal(continuationToken)
+            }
         }
     }
 
@@ -111,12 +113,12 @@ class BillingClientImpl(
             iapClient = iapClient,
             productId = sku,
             type = PriceType.IN_APP_SUBSCRIPTION,
-            onSuccessListener =    fun(result: PurchaseIntentResult) {
+            onSuccessListener = fun(result: PurchaseIntentResult) {
                 Timber.i("createPurchaseIntent, onSuccess")
 
                 val status = result.status
                     ?: return Timber.e("status is null")
-                 // you should pull up the page to complete the payment process.
+                // you should pull up the page to complete the payment process.
                 if (status.hasResolution()) {
                     try {
                         // status.startResolutionForResult(activity, REQ_CODE_BUY)

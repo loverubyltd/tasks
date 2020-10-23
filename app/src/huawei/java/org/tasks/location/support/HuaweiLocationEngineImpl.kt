@@ -88,7 +88,7 @@ class HuaweiLocationEngineImpl(private val fusedLocationProviderClient: FusedLoc
         LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             super.onLocationResult(locationResult)
-            val locations: List<Location> = locationResult.locations
+            val locations = locationResult.locations
             if (locations.isNotEmpty()) {
                 callback.onSuccess(LocationEngineResult.create(locations))
             } else {

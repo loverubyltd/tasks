@@ -151,9 +151,9 @@ configurations.all {
     exclude(group = "com.google.j2objc")
 }
 
-val genericImplementation by configurations
-val googleplayImplementation by configurations
-val huaweiImplementation by configurations
+ val genericImplementation by configurations
+ val googleplayImplementation by configurations
+ val huaweiImplementation by configurations
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.0.10")
@@ -213,8 +213,9 @@ dependencies {
     implementation("me.leolin:ShortcutBadger:1.1.22@aar")
     implementation("com.google.apis:google-api-services-tasks:v1-rev20200905-1.30.10")
     implementation("com.google.apis:google-api-services-drive:v3-rev20200813-1.30.10")
-    implementation("com.google.auth:google-auth-library-oauth2-http:0.21.1")
+    implementation("com.google.auth:google-auth-library-oauth2-http:0.22.0")
     implementation("androidx.work:work-runtime:${Versions.work}")
+    implementation("com.google.http-client:google-http-client-android:1.37.0")
     implementation("androidx.work:work-runtime-ktx:${Versions.work}")
     implementation("com.mapbox.mapboxsdk:mapbox-android-core:3.0.0")
     implementation("com.mapbox.mapboxsdk:mapbox-sdk-services:5.3.0")

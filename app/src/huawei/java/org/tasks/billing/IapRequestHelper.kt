@@ -328,7 +328,7 @@ object IapRequestHelper {
     @JvmStatic
     fun showSubscription(activity: Activity?, productId: String?) {
         val req = StartIapActivityReq()
-        if (TextUtils.isEmpty(productId)) {
+        if (productId.isNullOrBlank()) {
             req.type = StartIapActivityReq.TYPE_SUBSCRIBE_MANAGER_ACTIVITY
         } else {
             req.type = StartIapActivityReq.TYPE_SUBSCRIBE_EDIT_ACTIVITY

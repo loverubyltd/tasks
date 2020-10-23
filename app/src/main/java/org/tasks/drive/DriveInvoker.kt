@@ -27,10 +27,11 @@ import java.io.IOException
 import javax.inject.Inject
 
 class DriveInvoker @Inject constructor(
-        @param:ApplicationContext private val context: Context,
-        private val preferences: Preferences,
-        private val credentialsAdapter: HttpCredentialsAdapter,
-        private val interceptor: DebugNetworkInterceptor) {
+    @param:ApplicationContext private val context: Context,
+    private val preferences: Preferences,
+    private val credentialsAdapter: HttpCredentialsAdapter,
+    private val interceptor: DebugNetworkInterceptor
+) {
     private val service =
             Drive
                     .Builder(NetHttpTransport(), JacksonFactory(), credentialsAdapter)
@@ -51,15 +52,17 @@ class DriveInvoker @Inject constructor(
     suspend fun getFilesByPrefix(folderId: String?, vararg prefix: String?): List<File> {
         val namePredicate = prefix.joinToString(" or ") { "name contains '$it'" }
         val query = String.format(
-                "'%s' in parents and ($namePredicate) and trashed = false and mimeType != '%s'",
-                folderId, prefix, MIME_FOLDER)
+            "'%s' in parents and ($namePredicate) and trashed = false and mimeType != '%s'",
+            folderId, prefix, MIME_FOLDER
+        )
         return execute(
-                service
-                        .files()
-                        .list()
-                        .setQ(query)
-                        .setSpaces("drive")
-                        .setFields("files(id, name, modifiedTime)"))
+            service
+                .files()
+                .list()
+                .setQ(query)
+                .setSpaces("drive")
+                .setFields("files(id, name, modifiedTime)")
+        )
                 ?.files
                 ?.filter { BackupConstants.isBackupFile(it.name) }
                 ?.sortedWith(DRIVE_FILE_COMPARATOR)
@@ -79,7 +82,8 @@ class DriveInvoker @Inject constructor(
                 .setParents(listOf(folderId))
                 .setMimeType(mime)
                 .setName(FileHelper.getFilename(context, uri))
-        val content = InputStreamContent(mime, context.contentResolver.openInputStream(uri!!))
+        val inputStream = context.contentResolver.openInputStream(uri!!)
+        val content = InputStreamContent(mime, inputStream)
         return execute(service.files().create(metadata, content))
     }
 
@@ -92,8 +96,8 @@ class DriveInvoker @Inject constructor(
     @Synchronized
     @Throws(IOException::class)
     private suspend fun <T> execute(
-            request: DriveRequest<T>,
-            retry: Boolean
+        request: DriveRequest<T>,
+        retry: Boolean
     ): T? = withContext(Dispatchers.IO) {
         val account = preferences.getStringValue(R.string.p_google_drive_backup_account)
         credentialsAdapter.checkToken(account, DriveScopes.DRIVE_FILE)
@@ -146,5 +150,8 @@ class DriveInvoker @Inject constructor(
         private val DRIVE_FILE_COMPARATOR = Comparator<File> { f1, f2 ->
             BackupConstants.getTimestamp(f2)!!.compareTo(BackupConstants.getTimestamp(f1)!!)
         }
+        private const val DIRECT_UPLOAD_MAX_SIZE = 20 * 1024 * 1024
+        private const val DIRECT_DOWNLOAD_MAX_SIZE = 20 * 1024 * 1024
+
     }
 }

@@ -1,27 +1,42 @@
 package org.tasks.location.support
 
 import android.content.Context
+import android.net.Uri
 import at.bitfire.cert4android.CustomCertManager
 import at.bitfire.dav4jvm.BasicDigestAuthHandler
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.huawei.hmf.tasks.Task
 import com.huawei.hms.site.api.model.Coordinate
 import com.huawei.hms.site.api.model.Site
 import dagger.hilt.android.qualifiers.ApplicationContext
-import okhttp3.HttpUrl
+import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import okhttp3.HttpUrl.Companion.toString
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.tls.OkHostnameVerifier
+import okio.IOException
+import org.json.JSONException
 import org.tasks.DebugNetworkInterceptor
 import org.tasks.R
 import org.tasks.caldav.MemoryCookieStore
 import org.tasks.preferences.Preferences
 import org.tasks.security.KeyStoreEncryption
+import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Query
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.net.ssl.SSLContext
+
+object Retrofititty {
+    val retrofit: Retrofit = Retrofit.Builder()
+        .baseUrl("https://api.github.com/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+}
 
 
 class GeoCodeManager {
@@ -32,7 +47,9 @@ class GeoCodeManager {
     private val basicDigestAuthHandler: BasicDigestAuthHandler?
     private var foreground = false
 
-    private val gson: Gson = GsonBuilder().registerTypeAdapter(
+
+    val gson: Gson = GsonBuilder()
+        .registerTypeAdapter(
             ReverseGeocodeResponse::class.java,
             ReverseGeocodeResponseDeserializer()
         )
@@ -78,15 +95,14 @@ class GeoCodeManager {
             .followSslRedirects(true)
             .sslSocketFactory(sslContext.socketFactory, customCertManager)
             .hostnameVerifier(hostnameVerifier)
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(120, TimeUnit.SECONDS)
+            .connectTimeout(10000, TimeUnit.SECONDS)
+            .readTimeout(10000, TimeUnit.MILLISECONDS)
         httpClient = builder.build()
         httpUrl = url?.toHttpUrlOrNull()
     }
 
 
-    val JSON = """{
+    val JsSON = """{
    "returnCode":"0",
    "sites":[
       {
@@ -140,40 +156,50 @@ class GeoCodeManager {
 }"""
 
 
+    interface PlaceAutoCompleteAPI {
+
+        @GET("api/place/autocomplete/json?types=address&key=YOUR-KEY")
+        fun loadPredictions(@Query("input") address: String?): Call<ReverseGeocodeResponse?>?
+    }
+
     var reverseGeocodeResponse: ReverseGeocodeResponse? = null
-    public fun reverseGeocode(lat: Double, lng: Double):  Site?  {
+
+    fun reverseGeocode(lat: Double, lng: Double): Site? {
         var result = ""
 
-        val location: Coordinate = Coordinate(lat, lng)
 
-        var root = ReverseGeocodeRequest(location);
-        val json = GsonBuilder().create().toJson(root)
-
-        val url =
-            "https://siteapi.cloud.huawei.com/mapApi/v1/siteService/reverseGeocode?key=" + android.net.Uri.encode(
-                context.getString(R.string.huawei_key)
-            )
-
+        val url = REVERSE_GEOCODE_URL.format(getKey())
+        val json = gson.toJson(ReverseGeocodeRequest(Coordinate(lat, lng)))
         val request = Request.Builder()
-            .get()
+            .post(json.toRequestBody(JSON))
             .url(url)
             .build()
 
         if (httpClient != null) {
-            httpClient.newCall(request).execute().use { response ->
-                response.body
-
-                val gson: Gson = GsonBuilder()
-                    .registerTypeAdapter(
-                        ReverseGeocodeResponse::class.java,
-                        ReverseGeocodeResponseDeserializer()
-                    )
-                    .create()
-
-                reverseGeocodeResponse = gson.fromJson(JSON, ReverseGeocodeResponse::class.java)
+            try {
+                httpClient.newCall(request).execute().use { response ->
+                    reverseGeocodeResponse =
+                        gson.fromJson(response.body,toString(), ReverseGeocodeResponse::class )
+                }
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
         }
 
-        return reverseGeocodeResponse?.sites?.firstOrNull()
+        return reverseGeocodeResponse
+    }
+
+    private fun getKey(): String? {
+        val key = context.getString(R.string.huawei_key)
+        return Uri.encode(key)
+    }
+
+    companion object {
+        const val REVERSE_GEOCODE_URL =
+            "https://siteapi.cloud.huawei.com/mapApi/v1/siteService/reverseGeocode?key=%s"
+        private val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
+
     }
 }
