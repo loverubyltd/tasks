@@ -4,7 +4,7 @@ plugins {
     id("com.google.firebase.crashlytics")
     kotlin("android")
     kotlin("kapt")
-    id("com.cookpad.android.plugin.license-tools") version "1.2.2"
+    id("com.cookpad.android.plugin.license-tools") version "1.2.4"
     id("com.github.ben-manes.versions") version "0.33.0"
     id("com.vanniktech.android.junit.jacoco") version "0.16.0"
     id("dagger.hilt.android.plugin")
