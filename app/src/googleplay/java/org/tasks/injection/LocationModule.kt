@@ -36,8 +36,8 @@ internal class LocationModule {
     fun getMapFragment(@ApplicationContext context: Context): MapFragment =
             GoogleMapFragment(context)
 
-    @Provides
-    @ActivityScoped
-    fun getLocationEngine(@ApplicationContext context: Context): LocationEngine =
-        LocationEngineProvider.getBestLocationEngine(this)
+        @Provides
+        @ActivityScoped
+        fun getLocationProvider(@ApplicationContext context: Context): LocationProvider =
+            LocationEngineProvider.getBestLocationEngine(context)
 }

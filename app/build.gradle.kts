@@ -148,7 +148,7 @@ android {
             buildTypes {
                 getByName("debug") {
                     applicationId = "org.tasks.huawei"
-                    applicationIdSuffix = ""
+                    // applicationIdSuffix = ""
                 }
             }
         }

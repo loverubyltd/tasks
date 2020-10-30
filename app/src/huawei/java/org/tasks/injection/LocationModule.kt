@@ -28,7 +28,7 @@ class LocationModule {
 
     @Provides
     @ActivityScoped
-    fun getLocationEngine(@ApplicationContext context: Context): LocationEngine =
+    fun getLocationProvider(@ApplicationContext context: Context): LocationProvider =
         LocationEngineDerived(HuaweiLocationEngineImpl(context))
 }
 

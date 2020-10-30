@@ -7,10 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityScoped
-import org.tasks.location.MapFragment
-import org.tasks.location.MapboxMapFragment
-import org.tasks.location.MapboxSearchProvider
-import org.tasks.location.PlaceSearchProvider
+import org.tasks.location.*
 
 @Module
 @InstallIn(ActivityComponent::class)
@@ -29,7 +26,6 @@ class LocationModule {
 
     @Provides
     @ActivityScoped
-    fun getLocationEngine(@ApplicationContext context: Context): LocationEngine {
-        return LocationEngineProvider.getBestLocationEngine(this)
-    }
+    fun getLocationProvider(@ApplicationContext context: Context): LocationProvider =
+        MapboxBestLocationProvider(context)
 }
