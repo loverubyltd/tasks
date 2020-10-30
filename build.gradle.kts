@@ -7,7 +7,7 @@ buildscript {
 
     dependencies {
         classpath("com.android.tools.build:gradle:4.1.0")
-        classpath("com.google.gms:google-services:4.3.3")
+        classpath("com.google.gms:google-services:4.3.4")
         classpath("com.huawei.agconnect:agcp:1.4.1.300")
         classpath("com.google.firebase:firebase-crashlytics-gradle:2.2.1")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10")
