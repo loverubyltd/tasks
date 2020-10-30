@@ -30,13 +30,12 @@ class DriveInvoker @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val preferences: Preferences,
     private val credentialsAdapter: HttpCredentialsAdapter,
-    private val interceptor: DebugNetworkInterceptor
-) {
+    private val interceptor: DebugNetworkInterceptor) {
     private val service =
-            Drive
-                    .Builder(NetHttpTransport(), JacksonFactory(), credentialsAdapter)
-                    .setApplicationName(String.format("Tasks/%s", BuildConfig.VERSION_NAME))
-                    .build()
+        Drive
+            .Builder(NetHttpTransport(), JacksonFactory(), credentialsAdapter)
+            .setApplicationName(String.format("Tasks/%s", BuildConfig.VERSION_NAME))
+            .build()
 
     @Throws(IOException::class)
     suspend fun getFile(folderId: String?): File? {
@@ -53,20 +52,18 @@ class DriveInvoker @Inject constructor(
         val namePredicate = prefix.joinToString(" or ") { "name contains '$it'" }
         val query = String.format(
             "'%s' in parents and ($namePredicate) and trashed = false and mimeType != '%s'",
-            folderId, prefix, MIME_FOLDER
-        )
+            folderId, prefix, MIME_FOLDER)
         return execute(
             service
                 .files()
                 .list()
                 .setQ(query)
                 .setSpaces("drive")
-                .setFields("files(id, name, modifiedTime)")
-        )
-                ?.files
-                ?.filter { BackupConstants.isBackupFile(it.name) }
-                ?.sortedWith(DRIVE_FILE_COMPARATOR)
-                ?: emptyList()
+                .setFields("files(id, name, modifiedTime)"))
+            ?.files
+            ?.filter { BackupConstants.isBackupFile(it.name) }
+            ?.sortedWith(DRIVE_FILE_COMPARATOR)
+            ?: emptyList()
     }
 
     @Throws(IOException::class)
@@ -79,11 +76,10 @@ class DriveInvoker @Inject constructor(
     suspend fun createFile(folderId: String, uri: Uri?): File? {
         val mime = FileHelper.getMimeType(context, uri!!)
         val metadata = File()
-                .setParents(listOf(folderId))
-                .setMimeType(mime)
-                .setName(FileHelper.getFilename(context, uri))
-        val inputStream = context.contentResolver.openInputStream(uri!!)
-        val content = InputStreamContent(mime, inputStream)
+            .setParents(listOf(folderId))
+            .setMimeType(mime)
+            .setName(FileHelper.getFilename(context, uri))
+        val content = InputStreamContent(mime, context.contentResolver.openInputStream(uri!!))
         return execute(service.files().create(metadata, content))
     }
 
@@ -150,8 +146,5 @@ class DriveInvoker @Inject constructor(
         private val DRIVE_FILE_COMPARATOR = Comparator<File> { f1, f2 ->
             BackupConstants.getTimestamp(f2)!!.compareTo(BackupConstants.getTimestamp(f1)!!)
         }
-        private const val DIRECT_UPLOAD_MAX_SIZE = 20 * 1024 * 1024
-        private const val DIRECT_DOWNLOAD_MAX_SIZE = 20 * 1024 * 1024
-
     }
 }

@@ -25,12 +25,12 @@ import java.net.UnknownHostException
 import javax.net.ssl.SSLException
 
 class DriveUploader @WorkerInject constructor(
-        @Assisted context: Context,
-        @Assisted workerParams: WorkerParameters,
-        firebase: Firebase,
-        private val drive: DriveInvoker,
-        private val preferences: Preferences,
-        private val localBroadcastManager: LocalBroadcastManager
+    @Assisted context: Context,
+    @Assisted workerParams: WorkerParameters,
+    firebase: Firebase,
+    private val drive: DriveInvoker,
+    private val preferences: Preferences,
+    private val localBroadcastManager: LocalBroadcastManager
 ) : BaseWorker(context, workerParams, firebase) {
 
     override suspend fun run(): Result {
@@ -40,24 +40,24 @@ class DriveUploader @WorkerInject constructor(
             val folder = getFolder() ?: return Result.failure()
             preferences.setString(R.string.p_google_drive_backup_folder, folder.id)
             drive.createFile(folder.id, uri)
-                    ?.let(BackupConstants::getTimestamp)
-                    ?.let { preferences.setLong(R.string.p_backups_drive_last, it) }
+                ?.let(BackupConstants::getTimestamp)
+                ?.let { preferences.setLong(R.string.p_backups_drive_last, it) }
             localBroadcastManager.broadcastPreferenceRefresh()
             if (inputData.getBoolean(EXTRA_PURGE, false)) {
                 drive
-                        .getFilesByPrefix(folder.id, "auto.")
-                        .drop(BackupWork.DAYS_TO_KEEP_BACKUP)
-                        .forEach {
-                            try {
-                                drive.delete(it)
-                            } catch (e: GoogleJsonResponseException) {
-                                if (e.statusCode == 404) {
-                                    Timber.e(e)
-                                } else {
-                                    throw e
-                                }
+                    .getFilesByPrefix(folder.id, "auto.")
+                    .drop(BackupWork.DAYS_TO_KEEP_BACKUP)
+                    .forEach {
+                        try {
+                            drive.delete(it)
+                        } catch (e: GoogleJsonResponseException) {
+                            if (e.statusCode == 404) {
+                                Timber.e(e)
+                            } else {
+                                throw e
                             }
                         }
+                    }
             }
             Result.success()
         } catch (e: SocketTimeoutException) {
@@ -118,9 +118,9 @@ class DriveUploader @WorkerInject constructor(
         private const val EXTRA_PURGE = "extra_purge"
 
         fun getInputData(uri: Uri, purge: Boolean) =
-                Data.Builder()
-                    .putString(EXTRA_URI, uri.toString())
-                    .putBoolean(EXTRA_PURGE, purge)
-                    .build()
+            Data.Builder()
+                .putString(EXTRA_URI, uri.toString())
+                .putBoolean(EXTRA_PURGE, purge)
+                .build()
     }
 }
