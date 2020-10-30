@@ -90,6 +90,9 @@ android {
             firebaseCrashlytics {
                 mappingFileUploadEnabled = false
             }
+            agcp{
+                mappingUpload = false
+            }
             val tasks_mapbox_key_debug: String? by project
             val tasks_google_key_debug: String? by project
             val tasks_huawei_key_debug: String? by project
@@ -116,25 +119,37 @@ android {
     productFlavors {
         create("generic") {
             dimension("store")
+
+            agcp{
+                mappingUpload = false
+            }
         }
         create("googleplay") {
             dimension("store")
+
+            agcp{
+                mappingUpload = false
+            }
         }
         create("huawei") {
             dimension("store")
             applicationId = "org.tasks.huawei"
 
-            buildTypes {
-                getByName("debug") {
-                    applicationId = "org.tasks.huawei"
-                    applicationIdSuffix = ""
-                }
+            firebaseCrashlytics {
+                mappingFileUploadEnabled = false
             }
 
             agcp{
                 mappingUpload = true
                 debug = false
                 // appVersion = "xxx"
+            }
+
+            buildTypes {
+                getByName("debug") {
+                    applicationId = "org.tasks.huawei"
+                    applicationIdSuffix = ""
+                }
             }
         }
     }
@@ -157,9 +172,9 @@ configurations.all {
     exclude(group = "com.google.j2objc")
 }
 
- val genericImplementation by configurations
- val googleplayImplementation by configurations
- val huaweiImplementation by configurations
+val genericImplementation by configurations
+val googleplayImplementation by configurations
+val huaweiImplementation by configurations
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.0.10")
@@ -270,6 +285,5 @@ dependencies {
     testImplementation("org.mockito:mockito-core:${Versions.mockito}")
 }
 
-// apply(mapOf("plugin" to "com.google.gms.google-services"))
+apply(mapOf("plugin" to "com.google.gms.google-services"))
 // apply(plugin = "com.huawei.agconnect")
-
