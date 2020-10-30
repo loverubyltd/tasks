@@ -130,6 +130,12 @@ android {
                     applicationIdSuffix = ""
                 }
             }
+
+            agcp{
+                mappingUpload = true
+                debug = false
+                // appVersion = "xxx"
+            }
         }
     }
 
@@ -267,8 +273,3 @@ dependencies {
 // apply(mapOf("plugin" to "com.google.gms.google-services"))
 // apply(plugin = "com.huawei.agconnect")
 
-agcp{
-    mappingUpload = true 
-    debug = false
-    // appVersion = "xxx"
-}
