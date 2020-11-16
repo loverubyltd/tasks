@@ -37,12 +37,17 @@ class ReverseGeocodeWork @WorkerInject constructor(
         }
         return try {
             val result = geocoder.reverseGeocode(place.mapPosition)
-            result.id = place.id
-            result.uid = place.uid
-            locationDao.update(result)
-            localBroadcastManager.broadcastRefresh()
-            Timber.d("found $result")
-            Result.success()
+            if (result == null) {
+                Timber.d("Result was null")
+                Result.failure()
+            } else {
+                result.id = place.id
+                result.uid = place.uid
+                locationDao.update(result)
+                localBroadcastManager.broadcastRefresh()
+                Timber.d("found $result")
+                Result.success()
+            }
         } catch (e: IOException) {
             firebase.reportException(e)
             Result.failure()

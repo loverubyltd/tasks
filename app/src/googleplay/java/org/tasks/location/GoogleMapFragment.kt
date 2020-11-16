@@ -7,11 +7,15 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import org.tasks.R
 import org.tasks.data.Place
 import org.tasks.location.MapFragment.MapFragmentCallback
-import java.util.*
+
 
 class GoogleMapFragment(private val context: Context) : MapFragment, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     private val markers: MutableList<Marker> = ArrayList()
@@ -22,6 +26,7 @@ class GoogleMapFragment(private val context: Context) : MapFragment, OnMapReadyC
     override fun init(fragmentManager: FragmentManager, callbacks: MapFragmentCallback, dark: Boolean) {
         this.callbacks = callbacks
         this.dark = dark
+
         var mapFragment = fragmentManager.findFragmentByTag(FRAG_TAG_MAP) as SupportMapFragment?
         if (mapFragment == null) {
             mapFragment = SupportMapFragment()
@@ -30,14 +35,15 @@ class GoogleMapFragment(private val context: Context) : MapFragment, OnMapReadyC
         mapFragment.getMapAsync(this)
     }
 
-    override fun getMapPosition(): MapPosition? {
-        if (map == null) {
-            return null
+    override val mapPosition: MapPosition?
+        get() {
+            if (map == null) {
+                return null
+            }
+            val cameraPosition = map!!.cameraPosition
+            val target = cameraPosition.target
+            return MapPosition(target.latitude, target.longitude, cameraPosition.zoom)
         }
-        val cameraPosition = map!!.cameraPosition
-        val target = cameraPosition.target
-        return MapPosition(target.latitude, target.longitude, cameraPosition.zoom)
-    }
 
     override fun movePosition(mapPosition: MapPosition, animate: Boolean) {
         val cameraUpdate = CameraUpdateFactory.newCameraPosition(
@@ -89,10 +95,10 @@ class GoogleMapFragment(private val context: Context) : MapFragment, OnMapReadyC
         callbacks.onMapReady(this)
     }
 
-    override fun getMarkerId() = R.id.google_marker
+    override val markerId: Int = R.id.google_marker
 
     override fun onMarkerClick(marker: Marker): Boolean {
-        callbacks.onPlaceSelected(marker.tag as Place?)
+        callbacks.onPlaceSelected(marker.tag as Place)
         return true
     }
 

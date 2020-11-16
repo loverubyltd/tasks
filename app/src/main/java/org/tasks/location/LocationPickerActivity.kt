@@ -38,7 +38,6 @@ import kotlinx.coroutines.launch
 import org.tasks.Event
 import org.tasks.PermissionUtil.verifyPermissions
 import org.tasks.R
-import org.tasks.Strings.isNullOrEmpty
 import org.tasks.activities.PlaceSettingsActivity
 import org.tasks.billing.Inventory
 import org.tasks.caldav.GeoUtils.toLikeString
@@ -175,8 +174,9 @@ class LocationPickerActivity : InjectingAppCompatActivity(), Toolbar.OnMenuItemC
         }
         findViewById<View>(map.markerId).visibility = View.VISIBLE
         searchAdapter = LocationSearchAdapter(searchProvider.getAttributionRes(dark), this)
-        recentsAdapter = LocationPickerAdapter(this, inventory, colorProvider, this)
-        recentsAdapter!!.setHasStableIds(true)
+        recentsAdapter = LocationPickerAdapter(this, inventory, colorProvider, this).apply {
+            setHasStableIds(true)
+        }
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = if (search.isActionViewExpanded) searchAdapter else recentsAdapter
     }
@@ -188,7 +188,7 @@ class LocationPickerActivity : InjectingAppCompatActivity(), Toolbar.OnMenuItemC
             mapFragment.showMyLocation()
         }
         if (mapPosition != null) {
-            map.movePosition(mapPosition, false)
+            map.movePosition(mapPosition!!, false)
         } else if (permissionChecker.canAccessForegroundLocation()) {
             moveToCurrentLocation(false)
         }
@@ -241,7 +241,7 @@ class LocationPickerActivity : InjectingAppCompatActivity(), Toolbar.OnMenuItemC
     @OnClick(R.id.select_this_location)
     fun selectLocation() {
         loadingIndicator.visibility = View.VISIBLE
-        val mapPosition = map.mapPosition
+        val mapPosition = map.mapPosition!!
         disposables!!.add(
                 Single.fromCallable { geocoder.reverseGeocode(mapPosition) }
                         .subscribeOn(Schedulers.io())
@@ -301,7 +301,10 @@ class LocationPickerActivity : InjectingAppCompatActivity(), Toolbar.OnMenuItemC
 
     override fun onResume() {
         super.onResume()
-        viewModel.observe(this, Observer { list: List<PlaceSearchResult?>? -> searchAdapter!!.submitList(list) }, Observer { place: Place? -> returnPlace(place) }, Observer { error: Event<String> -> handleError(error) })
+        viewModel.observe(this,
+            { list: List<PlaceSearchResult> -> searchAdapter!!.submitList(list) },
+            { place: Place? -> returnPlace(place) },
+            { error: Event<String> -> handleError(error) })
         disposables = CompositeDisposable(
                 searchSubject
                         .debounce(SEARCH_DEBOUNCE_TIMEOUT.toLong(), TimeUnit.MILLISECONDS)

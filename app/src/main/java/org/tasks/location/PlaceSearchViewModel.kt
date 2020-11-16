@@ -8,7 +8,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import com.todoroo.andlib.utility.AndroidUtilities
 import org.tasks.Event
-import org.tasks.Strings.isNullOrEmpty
 import org.tasks.data.Place
 
 class PlaceSearchViewModel @ViewModelInject constructor(
@@ -19,20 +18,20 @@ class PlaceSearchViewModel @ViewModelInject constructor(
     private val selection = MutableLiveData<Place>()
 
     fun observe(
-            owner: LifecycleOwner?,
-            onResults: Observer<List<PlaceSearchResult>>?,
-            onSelection: Observer<Place>?,
-            onError: Observer<Event<String>>?) {
-        searchResults.observe(owner!!, onResults!!)
+        owner: LifecycleOwner,
+        onResults: Observer<List<PlaceSearchResult>>?,
+        onSelection: Observer<Place>?,
+        onError: Observer<Event<String>>?) {
+        searchResults.observe(owner, onResults!!)
         selection.observe(owner, onSelection!!)
         error.observe(owner, onError!!)
     }
 
-    fun saveState(outState: Bundle?) {
+    fun saveState(outState: Bundle) {
         searchProvider.saveState(outState)
     }
 
-    fun restoreState(savedInstanceState: Bundle?) {
+    fun restoreState(savedInstanceState: Bundle) {
         searchProvider.restoreState(savedInstanceState)
     }
 
@@ -45,7 +44,7 @@ class PlaceSearchViewModel @ViewModelInject constructor(
         }
     }
 
-    fun fetch(result: PlaceSearchResult?) {
+    fun fetch(result: PlaceSearchResult) {
         searchProvider.fetch(result, { value: Place -> selection.setValue(value) }) { message: String -> setError(message) }
     }
 
