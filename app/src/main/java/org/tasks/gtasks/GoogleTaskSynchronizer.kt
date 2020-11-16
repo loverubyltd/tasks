@@ -102,8 +102,10 @@ class GoogleTaskSynchronizer @Inject constructor(
 
     @Throws(IOException::class)
     private suspend fun synchronize(account: GoogleTaskAccount) {
+        val accountName = account.account
         if (!permissionChecker.canAccessAccounts()
-                || googleAccountManager.getAccount(account.account) == null) {
+                || accountName.isNullOrBlank()
+                || googleAccountManager.getAccount(accountName) == null) {
             account.error = context.getString(R.string.cannot_access_account)
             return
         }
