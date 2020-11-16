@@ -8,12 +8,14 @@ plugins {
     id("com.github.ben-manes.versions") version "0.36.0"
     id("com.vanniktech.android.junit.jacoco") version "0.16.0"
     id("dagger.hilt.android.plugin")
+    id("com.huawei.agconnect")
 }
 
 repositories {
     jcenter()
     google()
     maven(url = "https://jitpack.io")
+    maven(url = "https://developer.huawei.com/repo/") // HUAWEI Maven repository
 }
 
 android {
@@ -88,17 +90,24 @@ android {
             firebaseCrashlytics {
                 mappingFileUploadEnabled = false
             }
+            agcp{
+                mappingUpload = false
+            }
             val tasks_mapbox_key_debug: String? by project
             val tasks_google_key_debug: String? by project
+            val tasks_huawei_key_debug: String? by project
             resValue("string", "mapbox_key", tasks_mapbox_key_debug ?: "")
             resValue("string", "google_key", tasks_google_key_debug ?: "")
+            resValue("string", "huawei_key", tasks_huawei_key_debug ?: "")
             isTestCoverageEnabled = project.hasProperty("coverage")
         }
         getByName("release") {
             val tasks_mapbox_key: String? by project
             val tasks_google_key: String? by project
+            val tasks_huawei_key: String? by project
             resValue("string", "mapbox_key", tasks_mapbox_key ?: "")
             resValue("string", "google_key", tasks_google_key ?: "")
+            resValue("string", "huawei_key", tasks_huawei_key ?: "")
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard.pro")
             signingConfig = signingConfigs.getByName("release")
@@ -113,6 +122,10 @@ android {
         }
         create("googleplay") {
             dimension("store")
+        }
+        create("huawei") {
+            dimension("store")
+            applicationId = "org.tasks.huawei"
         }
     }
 
@@ -136,6 +149,7 @@ configurations.all {
 
 val genericImplementation by configurations
 val googleplayImplementation by configurations
+val huaweiImplementation by configurations
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.0")
@@ -152,9 +166,11 @@ dependencies {
     implementation("androidx.hilt:hilt-work:${Versions.hilt_androidx}")
     implementation("androidx.hilt:hilt-lifecycle-viewmodel:${Versions.hilt_androidx}")
 
-    implementation("androidx.fragment:fragment-ktx:1.2.5")
+    implementation("androidx.activity:activity-ktx:1.2.0-beta01")
+    implementation("androidx.fragment:fragment-ktx:1.3.0-beta01")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}")
+    implementation("androidx.lifecycle:lifecycle-common-java8:${Versions.lifecycle}")
     implementation("androidx.room:room-ktx:${Versions.room}")
     kapt("androidx.room:room-compiler:${Versions.room}")
     implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
@@ -216,6 +232,18 @@ dependencies {
     googleplayImplementation("com.android.billingclient:billing:1.2.2")
     googleplayImplementation("com.google.android.gms:play-services-auth:19.0.0")
 
+    huaweiImplementation("com.huawei.agconnect:agconnect-core:1.4.1.300")
+    huaweiImplementation("com.huawei.agconnect:agconnect-crash:1.4.1.300")
+    huaweiImplementation("com.huawei.agconnect:agconnect-remoteconfig:1.4.1.300")
+    huaweiImplementation("com.huawei.hms:drive:5.0.0.301")
+    huaweiImplementation("com.huawei.hms:hianalytics:5.0.5.300")
+    huaweiImplementation("com.huawei.hms:hwid:5.0.3.302")
+    huaweiImplementation("com.huawei.hms:location:5.0.2.301")
+    huaweiImplementation("com.huawei.hms:maps:5.0.3.301")
+    huaweiImplementation("com.huawei.hms:site:5.0.3.301")
+    huaweiImplementation("androidx.localbroadcastmanager:localbroadcastmanager:1.0.0")
+    huaweiImplementation("androidx.documentfile:documentfile:1.0.1")
+
     androidTestImplementation("com.google.dagger:hilt-android-testing:${Versions.hilt}")
     kaptAndroidTest("com.google.dagger:hilt-compiler:${Versions.hilt}")
     kaptAndroidTest("androidx.hilt:hilt-compiler:${Versions.hilt_androidx}")
@@ -235,3 +263,12 @@ dependencies {
 }
 
 apply(mapOf("plugin" to "com.google.gms.google-services"))
+
+// No matching client found for package name 'org.tasks.huawei'
+android.applicationVariants.all {
+    if (name.startsWith("huawei")) {
+        val targetTask = project.tasks.getByName("process${name.capitalize()}GoogleServices")
+        logger.warn("Removing GMS task :${targetTask.name} for variant '$name'")
+        targetTask.enabled = false
+    }
+}

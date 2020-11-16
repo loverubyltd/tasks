@@ -4,12 +4,14 @@ buildscript {
     repositories {
         jcenter()
         google()
+        maven(url = "https://developer.huawei.com/repo/") // HUAWEI Maven repository
     }
 
     dependencies {
         classpath("com.android.tools.build:gradle:4.1.1")
         classpath("com.google.gms:google-services:4.3.4")
         classpath("com.google.firebase:firebase-crashlytics-gradle:2.3.0")
+        classpath("com.huawei.agconnect:agcp:1.4.1.300")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}")
         classpath("com.google.dagger:hilt-android-gradle-plugin:${Versions.hilt}")
     }
@@ -49,12 +51,12 @@ allprojects {
         }
     }
 
-  apply(plugin = "io.gitlab.arturbosch.detekt")
+    apply(plugin = "io.gitlab.arturbosch.detekt")
 
-  detekt {
-      toolVersion = "1.14.2"
-      config = files("config/detekt/detekt.yml")
-      buildUponDefaultConfig = true
+    detekt {
+        toolVersion = "1.14.2"
+        config = files("config/detekt/detekt.yml")
+        buildUponDefaultConfig = true
     }
 }
 

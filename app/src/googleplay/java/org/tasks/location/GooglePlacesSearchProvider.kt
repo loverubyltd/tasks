@@ -19,12 +19,12 @@ class GooglePlacesSearchProvider(private val context: Context) : PlaceSearchProv
     private var token: AutocompleteSessionToken? = null
     private var placesClient: PlacesClient? = null
 
-    override fun restoreState(savedInstanceState: Bundle) {
-        token = savedInstanceState.getParcelable(EXTRA_SESSION_TOKEN)
+    override fun restoreState(savedInstanceState: Bundle?) {
+        token = savedInstanceState?.getParcelable(EXTRA_SESSION_TOKEN)
     }
 
-    override fun saveState(outState: Bundle) {
-        outState.putParcelable(EXTRA_SESSION_TOKEN, token)
+    override fun saveState(outState: Bundle?) {
+        outState?.putParcelable(EXTRA_SESSION_TOKEN, token)
     }
 
     override fun getAttributionRes(dark: Boolean): Int {

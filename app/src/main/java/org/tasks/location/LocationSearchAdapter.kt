@@ -71,7 +71,7 @@ internal class LocationSearchAdapter(
 
     internal class SearchViewHolder(itemView: View, onPredictionPicked: OnPredictionPicked) :
         RecyclerView.ViewHolder(itemView) {
-        private val name: TextView= itemView.findViewById(R.id.name)
+        private val name: TextView = itemView.findViewById(R.id.name)
         private val address: TextView = itemView.findViewById(R.id.address)
         private var prediction: PlaceSearchResult? = null
 

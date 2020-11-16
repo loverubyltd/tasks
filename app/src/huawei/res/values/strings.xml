@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="location_settings_error_api_not_connected">Not connected to the Location API</string>
+    <string name="location_settings_error_canceled">Cancelled</string>
+    <string name="location_settings_error_developer_error">Developer error</string>
+    <string name="location_settings_error_error">Miscellaneous error</string>
+    <string name="location_settings_error_internal_error">Internal error</string>
+    <string name="location_settings_error_interrupted">Interrupted</string>
+    <string name="location_settings_error_invalid_account">Invalid account</string>
+    <string name="location_settings_error_network_error">Network error</string>
+    <string name="location_settings_error_sign_in_required">Sign-in required</string>
+    <string name="location_settings_error_timeout">Timeout</string>
+    <string name="huawei_mobile_services_available" />
+</resources>

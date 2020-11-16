@@ -1,5 +1,6 @@
 package org.tasks.injection
 
+import android.app.Activity
 import android.content.Context
 import dagger.Module
 import dagger.Provides
@@ -11,21 +12,19 @@ import org.tasks.location.*
 
 @Module
 @InstallIn(ActivityComponent::class)
-class LocationModule {
+internal class LocationModule {
     @Provides
     @ActivityScoped
-    fun getPlaceSearchProvider(@ApplicationContext context: Context): PlaceSearchProvider {
-        return MapboxSearchProvider(context)
-    }
+    fun getPlaceSearchProvider(activity: Activity): PlaceSearchProvider =
+        HuaweiSiteKitSearchProvider(activity)
 
     @Provides
     @ActivityScoped
-    fun getMapFragment(@ApplicationContext context: Context): MapFragment {
-        return MapboxMapFragment(context)
-    }
+    fun getMapFragment(@ApplicationContext context: Context): MapFragment =
+        HuaweiMapFragment(context)
 
     @Provides
     @ActivityScoped
     fun getLocationProvider(@ApplicationContext context: Context): LocationProvider =
-        MapboxBestLocationProvider(context)
+        HuaweiLocationProvider(context)
 }

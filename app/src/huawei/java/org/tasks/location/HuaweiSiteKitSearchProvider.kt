@@ -1,0 +1,89 @@
+package org.tasks.location
+
+import android.app.Activity
+import android.os.Bundle
+import android.text.TextUtils
+import androidx.annotation.DrawableRes
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonParseException
+import com.google.gson.JsonParser
+import com.huawei.hmf.tasks.TaskCompletionSource
+import com.huawei.hms.common.ApiException
+import com.huawei.hms.common.internal.AnyClient
+import com.huawei.hms.common.internal.ResponseErrorCode
+import com.huawei.hms.common.internal.TaskApiCall
+import com.huawei.hms.site.api.SearchResultListener
+import com.huawei.hms.site.api.SearchService
+import com.huawei.hms.site.api.SearchServiceFactory
+import com.huawei.hms.site.api.model.*
+import com.huawei.hms.support.api.client.Status
+import org.tasks.Callback
+import org.tasks.R
+import org.tasks.data.Place
+import org.tasks.location.support.toPlace
+import timber.log.Timber
+
+
+class HuaweiSiteKitSearchProvider(private val activity: Activity) : PlaceSearchProvider {
+    private val apiKey = activity.getString(R.string.huawei_key)
+
+    private val searchService: SearchService by lazy {
+        SearchServiceFactory.create(activity, apiKey)
+    }
+
+    override fun restoreState(savedInstanceState: Bundle) {
+    }
+
+    override fun saveState(outState: Bundle) {
+    }
+
+    @DrawableRes
+    override fun getAttributionRes(dark: Boolean): Int = R.drawable.huawei_logo
+
+    override fun search(
+        query: String,
+        bias: MapPosition?,
+        onSuccess: Callback<List<PlaceSearchResult>>,
+        onError: Callback<String>
+    ) {
+
+        val request = QueryAutocompleteRequest().also {
+            it.setQuery(query)
+            if (bias != null) {
+                it.location = Coordinate(bias.latitude, bias.longitude)
+            }
+        }
+
+        searchService.queryAutocomplete(
+            request,
+            object : SearchResultListener<QueryAutocompleteResponse> {
+                override fun onSearchResult(response: QueryAutocompleteResponse?) {
+                    response?.sites?.let { onSuccess.call(toSearchResults(it)) }
+                }
+
+                override fun onSearchError(status: SearchStatus) {
+                    onError.call(status.getErrorMessage())
+                }
+            })
+    }
+
+    override fun fetch(
+        placeSearchResult: PlaceSearchResult,
+        onSuccess: Callback<Place>,
+        onError: Callback<String>
+    ) {
+        onSuccess.call(placeSearchResult.place)
+    }
+
+    private fun toSearchResults(sites: Array<Site>): List<PlaceSearchResult> = sites.map {
+        PlaceSearchResult(
+            it.siteId,
+            it.name,
+            it.formatAddress,
+            it.toPlace()
+        )
+    }
+
+ }
+

@@ -24,9 +24,6 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.Behavior.DragCallback
 import com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener
 import com.google.android.material.appbar.CollapsingToolbarLayout
-import com.mapbox.android.core.location.LocationEngineCallback
-import com.mapbox.android.core.location.LocationEngineProvider
-import com.mapbox.android.core.location.LocationEngineResult
 import com.todoroo.andlib.utility.AndroidUtilities
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.Single
@@ -89,6 +86,7 @@ class LocationPickerActivity : InjectingAppCompatActivity(), Toolbar.OnMenuItemC
     @Inject lateinit var theme: Theme
     @Inject lateinit var toaster: Toaster
     @Inject lateinit var locationDao: LocationDao
+    @Inject lateinit var locationProvider: LocationProvider
     @Inject lateinit var searchProvider: PlaceSearchProvider
     @Inject lateinit var permissionChecker: PermissionChecker
     @Inject lateinit var permissionRequestor: ActivityPermissionRequestor
@@ -259,21 +257,17 @@ class LocationPickerActivity : InjectingAppCompatActivity(), Toolbar.OnMenuItemC
 
     @SuppressLint("MissingPermission")
     private fun moveToCurrentLocation(animate: Boolean) {
-        LocationEngineProvider.getBestLocationEngine(this)
+        locationProvider
                 .getLastLocation(
-                        object : LocationEngineCallback<LocationEngineResult> {
-                            override fun onSuccess(result: LocationEngineResult) {
-                                val location = result.lastLocation
-                                if (location != null) {
-                                    map.movePosition(
-                                            MapPosition(location.latitude, location.longitude), animate)
-                                }
-                            }
-
-                            override fun onFailure(exception: Exception) {
-                                toaster.longToast(exception.message)
-                            }
-                        })
+                    onSuccess = { result ->
+                        val location = result.lastLocation
+                        if (location != null) {
+                            map.movePosition(
+                                MapPosition(location.latitude, location.longitude), animate
+                            )
+                        }
+                    },
+                    onFailure = { exception -> toaster.longToast(exception.message) })
     }
 
     private fun returnPlace(place: Place?) {

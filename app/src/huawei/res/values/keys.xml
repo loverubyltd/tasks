@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <string name="opentasks_authority" tools:node="replace">org.tasks.huawei.opentasks</string>
+  <string name="app_name" tools:ignore="PrivateResource">Tasks Huawei</string>
+  <string name="app_package">org.tasks.huawei</string>
+  <string name="common_google_play_services_notification_ticker">Google Play services error</string>
+
+  <string name="market_url">appmarket://details?id=org.tasks</string>
+  <string name="p_purchases">purchases</string>
+  <string name="manage_subscription_url">https://cloud.huawei.com/store/account/subscriptions?sku=%s&amp;package=org.tasks</string>
+  <string name="support_email">tasksorg-support@iloveruby.co.uk</string>>
+
+  <string name="p_huawei_drive_backup_folder">p_huawei_drive_backup_folder</string>
+
+  <string name="map_provider_huawei">Huawei</string>
+</resources>

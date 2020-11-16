@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="org.tasks">
+
+    <!-- =========================================== Additional Permissions = -->
+
+    <!-- ************************ -->
+    <!-- location based reminders -->
+    <!-- ************************ -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+    <application>
+
+        <meta-data
+            android:name="install_channel"
+            android:value="AppGallery" />
+
+        <service android:name="org.tasks.location.GeofenceTransitionsIntentService" />
+
+        <uses-library android:name="com.google.android.maps" tools:node="remove" />
+    </application>
+
+</manifest>

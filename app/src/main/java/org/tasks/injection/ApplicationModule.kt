@@ -7,6 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ActivityScoped
 import org.tasks.analytics.Firebase
 import org.tasks.billing.BillingClient
 import org.tasks.billing.BillingClientImpl
@@ -92,7 +93,4 @@ class ApplicationModule {
     @Provides
     fun getBillingClient(@ApplicationContext context: Context, inventory: Inventory, firebase: Firebase): BillingClient
             = BillingClientImpl(context, inventory, firebase)
-
-    @Provides
-    fun getGeocoder(@ApplicationContext context: Context): Geocoder = MapboxGeocoder(context)
 }
