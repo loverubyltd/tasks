@@ -160,7 +160,7 @@ abstract class BaseCaldavAccountSettingsActivity : ThemedInjectingAppCompatActiv
     protected val newName: String
         get() {
             val name = binding.name.text.toString().trim { it <= ' ' }
-            return if (isNullOrEmpty(name)) newUsername else name
+            return if (name.isNullOrEmpty()) newUsername else name
         }
 
     protected open val newURL: String
@@ -187,7 +187,7 @@ abstract class BaseCaldavAccountSettingsActivity : ThemedInjectingAppCompatActiv
             binding.nameLayout.error = getString(R.string.name_cannot_be_empty)
             failed = true
         }
-        if (isNullOrEmpty(url)) {
+        if (url.isNullOrEmpty()) {
             binding.urlLayout.error = getString(R.string.url_required)
             failed = true
         } else {
@@ -195,7 +195,7 @@ abstract class BaseCaldavAccountSettingsActivity : ThemedInjectingAppCompatActiv
             val scheme = baseURL.scheme
             if ("https".equals(scheme, ignoreCase = true) || "http".equals(scheme, ignoreCase = true)) {
                 var host = baseURL.host
-                if (isNullOrEmpty(host)) {
+                if (host.isNullOrEmpty()) {
                     binding.urlLayout.error = getString(R.string.url_host_name_required)
                     failed = true
                 } else {
@@ -218,11 +218,11 @@ abstract class BaseCaldavAccountSettingsActivity : ThemedInjectingAppCompatActiv
                 failed = true
             }
         }
-        if (isNullOrEmpty(username)) {
+        if (username.isNullOrEmpty()) {
             binding.userLayout.error = getString(R.string.username_required)
             failed = true
         }
-        if (isNullOrEmpty(password)) {
+        if (password.isNullOrEmpty()) {
             binding.passwordLayout.error = getString(R.string.password_required)
             failed = true
         }
@@ -289,9 +289,9 @@ abstract class BaseCaldavAccountSettingsActivity : ThemedInjectingAppCompatActiv
     protected open fun hasChanges(): Boolean {
         return if (caldavAccount == null) {
             (!isNullOrEmpty(binding.name.text.toString().trim { it <= ' ' })
-                    || !isNullOrEmpty(newPassword)
+                    || !newPassword.isNullOrEmpty()
                     || !isNullOrEmpty(binding.url.text.toString().trim { it <= ' ' })
-                    || !isNullOrEmpty(newUsername)
+                    || !newUsername.isNullOrEmpty()
                     || binding.repeat.isChecked)
         } else needsValidation()
                 || newName != caldavAccount!!.name

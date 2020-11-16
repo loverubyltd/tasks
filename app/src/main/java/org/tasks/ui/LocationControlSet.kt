@@ -71,7 +71,7 @@ class LocationControlSet : TaskEditControlFragment() {
                             && (location.isArrival || location.isDeparture)) R.drawable.ic_outline_notifications_24px else R.drawable.ic_outline_notifications_off_24px)
             val name = location.displayName
             val address = location.displayAddress
-            if (!isNullOrEmpty(address) && address != name) {
+            if (!address.isNullOrEmpty() && address != name) {
                 locationAddress.text = address
                 locationAddress.visibility = View.VISIBLE
             } else {
@@ -96,10 +96,10 @@ class LocationControlSet : TaskEditControlFragment() {
         } else {
             val options: MutableList<Pair<Int, () -> Unit>> = ArrayList()
             options.add(Pair.create(R.string.open_map, { location.open(activity) }))
-            if (!isNullOrEmpty(location.phone)) {
+            if (!location.phone.isNullOrEmpty()) {
                 options.add(Pair.create(R.string.action_call, { call() }))
             }
-            if (!isNullOrEmpty(location.url)) {
+            if (!location.url.isNullOrEmpty()) {
                 options.add(Pair.create(R.string.visit_website, { openWebsite() }))
             }
             options.add(Pair.create(R.string.choose_new_location, { chooseLocation() }))

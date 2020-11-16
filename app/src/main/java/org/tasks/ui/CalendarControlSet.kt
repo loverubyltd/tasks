@@ -176,7 +176,7 @@ class CalendarControlSet : TaskEditControlFragment() {
     }
 
     private fun calendarEntryExists(eventUri: String?): Boolean {
-        if (isNullOrEmpty(eventUri)) {
+        if (eventUri.isNullOrEmpty()) {
             return false
         }
         try {

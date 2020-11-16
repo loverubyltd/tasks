@@ -71,15 +71,15 @@ class ChipProvider @Inject constructor(
             newChip(PlaceFilter(location.place), R.drawable.ic_outline_place_24px)?.let(chips::add)
         }
         if (!isSubtask && preferences.showListChip) {
-            if (!isNullOrEmpty(task.googleTaskList) && filter !is GtasksFilter) {
+            if (!task.googleTaskList.isNullOrEmpty() && filter !is GtasksFilter) {
                 newChip(lists.getGoogleTaskList(task.googleTaskList), R.drawable.ic_list_24px)
                         ?.let(chips::add)
-            } else if (!isNullOrEmpty(task.caldav) && filter !is CaldavFilter) {
+            } else if (!task.caldav.isNullOrEmpty() && filter !is CaldavFilter) {
                 newChip(lists.getCaldavList(task.caldav), R.drawable.ic_list_24px)?.let(chips::add)
             }
         }
         val tagString = task.tagsString
-        if (!isNullOrEmpty(tagString) && preferences.showTagChip) {
+        if (!tagString.isNullOrEmpty() && preferences.showTagChip) {
             val tags = tagString.split(",").toHashSet()
             if (filter is TagFilter) {
                 tags.remove(filter.uuid)

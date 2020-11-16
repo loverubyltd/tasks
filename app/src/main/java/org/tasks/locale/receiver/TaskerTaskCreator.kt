@@ -23,7 +23,7 @@ class TaskerTaskCreator @Inject internal constructor(
     suspend fun handle(bundle: TaskCreationBundle) {
         val task = taskCreator.basicQuickAddTask(bundle.title)
         val dueDateString = bundle.dueDate
-        if (!isNullOrEmpty(dueDateString)) {
+        if (!dueDateString.isNullOrEmpty()) {
             try {
                 val dueDate = LocalDate.parse(dueDateString, dateFormatter)
                 val dt = DateTime(dueDate.year, dueDate.monthValue, dueDate.dayOfMonth)
@@ -33,7 +33,7 @@ class TaskerTaskCreator @Inject internal constructor(
             }
         }
         val dueTimeString = bundle.dueTime
-        if (!isNullOrEmpty(dueTimeString)) {
+        if (!dueTimeString.isNullOrEmpty()) {
             try {
                 val dueTime = LocalTime.parse(dueTimeString, timeFormatter)
                 task.dueDate = createDueDate(
@@ -47,7 +47,7 @@ class TaskerTaskCreator @Inject internal constructor(
             }
         }
         val priorityString = bundle.priority
-        if (!isNullOrEmpty(priorityString)) {
+        if (!priorityString.isNullOrEmpty()) {
             try {
                 val priority = priorityString.toInt()
                 task.priority = max(Task.Priority.HIGH, min(Task.Priority.NONE, priority))

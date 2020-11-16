@@ -38,7 +38,7 @@ class PlaceSearchViewModel @ViewModelInject constructor(
 
     fun query(query: String?, bias: MapPosition?) {
         AndroidUtilities.assertMainThread()
-        if (isNullOrEmpty(query)) {
+        if (query.isNullOrEmpty()) {
             searchResults.postValue(emptyList())
         } else {
             searchProvider.search(query, bias, { value: List<PlaceSearchResult> -> searchResults.setValue(value) }) { message: String -> setError(message) }

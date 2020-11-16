@@ -35,7 +35,7 @@ object TaskMaker {
     private val instantiator = Instantiator { lookup: PropertyLookup<Task> ->
         val task = Task()
         val title = lookup.valueOf(TITLE, null as String?)
-        if (!Strings.isNullOrEmpty(title)) {
+        if (!title.isNullOrEmpty()) {
             task.title = title!!
         }
         val id = lookup.valueOf(ID, Task.NO_ID)

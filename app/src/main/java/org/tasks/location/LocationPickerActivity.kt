@@ -311,7 +311,7 @@ class LocationPickerActivity : InjectingAppCompatActivity(), Toolbar.OnMenuItemC
 
     private fun handleError(error: Event<String>) {
         val message = error.ifUnhandled
-        if (!isNullOrEmpty(message)) {
+        if (!message.isNullOrEmpty()) {
             toaster.longToast(message)
         }
     }

@@ -86,7 +86,7 @@ class TagPickerActivity : ThemedInjectingAppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (isNullOrEmpty(viewModel.text)) {
+        if (viewModel.text.isNullOrEmpty()) {
             val data = Intent()
             data.putExtra(EXTRA_TASKS, taskIds)
             data.putParcelableArrayListExtra(EXTRA_PARTIALLY_SELECTED, viewModel.getPartiallySelected())

@@ -157,7 +157,7 @@ class iCalendar @Inject constructor(
         val categories = remoteModel.categories
         categories.clear()
         categories.addAll(tagDataDao.getTagDataForTask(task.id).map { it.name!! })
-        if (isNullOrEmpty(caldavTask.remoteId)) {
+        if (caldavTask.remoteId.isNullOrEmpty()) {
             val caldavUid = UUIDHelper.newUUID()
             caldavTask.remoteId = caldavUid
             remoteModel.uid = caldavUid

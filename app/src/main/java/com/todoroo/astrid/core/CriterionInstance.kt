@@ -123,7 +123,7 @@ class CriterionInstance {
 
         suspend fun fromString(
                 provider: FilterCriteriaProvider, criterion: String): List<CriterionInstance> {
-            if (isNullOrEmpty(criterion)) {
+            if (criterion.isNullOrEmpty()) {
                 return emptyList()
             }
             val entries: MutableList<CriterionInstance> = ArrayList()
@@ -163,7 +163,7 @@ class CriterionInstance {
         }
 
         private fun unescape(item: String?): String {
-            return if (isNullOrEmpty(item)) {
+            return if (item.isNullOrEmpty()) {
                 ""
             } else item!!.replace(
                     AndroidUtilities.SEPARATOR_ESCAPE, AndroidUtilities.SERIALIZATION_SEPARATOR)

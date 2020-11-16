@@ -80,7 +80,7 @@ class TaskAdapterProvider @Inject constructor(
         var list = taskListMetadataDao.fetchByTagOrFilter(filterId)
         if (list == null) {
             var defaultOrder = preferences.getStringValue(prefId)
-            if (isNullOrEmpty(defaultOrder)) {
+            if (defaultOrder.isNullOrEmpty()) {
                 defaultOrder = "[]" // $NON-NLS-1$
             }
             defaultOrder = SubtasksHelper.convertTreeToRemoteIds(taskDao, defaultOrder)

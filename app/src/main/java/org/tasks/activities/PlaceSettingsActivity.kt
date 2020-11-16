@@ -74,7 +74,7 @@ class PlaceSettingsActivity : BaseListSettingsActivity(), MapFragment.MapFragmen
     override suspend fun save() {
         val newName: String = name.text.toString()
 
-        if (isNullOrEmpty(newName)) {
+        if (newName.isNullOrEmpty()) {
             nameLayout.error = getString(R.string.name_cannot_be_empty)
             return
         }

@@ -24,7 +24,7 @@ class SubtasksFilterUpdater @Inject constructor(
             return "[]" // $NON-NLS-1$
         }
         var order = list.taskIds
-        if (isNullOrEmpty(order) || "null" == order) // $NON-NLS-1$
+        if (order.isNullOrEmpty() || "null" == order) // $NON-NLS-1$
         {
             order = "[]" // $NON-NLS-1$
         }

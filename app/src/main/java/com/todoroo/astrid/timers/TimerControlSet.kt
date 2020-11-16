@@ -134,11 +134,11 @@ class TimerControlSet : TaskEditControlFragment() {
                     DateUtils.formatElapsedTime(viewModel.elapsedSeconds!!.toLong()))
         }
         val toDisplay: String?
-        toDisplay = if (!isNullOrEmpty(est) && !isNullOrEmpty(elap)) {
+        toDisplay = if (!est.isNullOrEmpty() && !elap.isNullOrEmpty()) {
             "$est, $elap" // $NON-NLS-1$
-        } else if (!isNullOrEmpty(est)) {
+        } else if (!est.isNullOrEmpty()) {
             est
-        } else if (!isNullOrEmpty(elap)) {
+        } else if (!elap.isNullOrEmpty()) {
             elap
         } else {
             null

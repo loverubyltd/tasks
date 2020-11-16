@@ -150,7 +150,7 @@ class Upgrader @Inject constructor(
         for (task in caldavDao.getTasks().map(CaldavTaskContainer::caldavTask)) {
             val remoteTask = fromVtodo(task.vtodo!!) ?: continue
             task.remoteParent = remoteTask.getParent()
-            if (!isNullOrEmpty(task.remoteParent)) {
+            if (!task.remoteParent.isNullOrEmpty()) {
                 updated.add(task)
             }
         }
@@ -203,11 +203,11 @@ class Upgrader @Inject constructor(
 
     private suspend fun migrateDefaultSyncList() {
         val account = preferences.getStringValue("gtasks_user")
-        if (isNullOrEmpty(account)) {
+        if (account.isNullOrEmpty()) {
             return
         }
         val defaultGoogleTaskList = preferences.getStringValue("gtasks_defaultlist")
-        if (isNullOrEmpty(defaultGoogleTaskList)) {
+        if (defaultGoogleTaskList.isNullOrEmpty()) {
             // TODO: look up default list
         } else {
             val googleTaskList = googleTaskListDao.getByRemoteId(defaultGoogleTaskList!!)
@@ -219,7 +219,7 @@ class Upgrader @Inject constructor(
 
     private suspend fun migrateGoogleTaskAccount() {
         val account = preferences.getStringValue("gtasks_user")
-        if (!isNullOrEmpty(account)) {
+        if (!account.isNullOrEmpty()) {
             val googleTaskAccount = GoogleTaskAccount()
             googleTaskAccount.account = account
             googleTaskListDao.insert(googleTaskAccount)
@@ -245,7 +245,7 @@ class Upgrader @Inject constructor(
 
     private fun migrateUriPreference(pref: Int) {
         val path = preferences.getStringValue(pref)
-        if (isNullOrEmpty(path)) {
+        if (path.isNullOrEmpty()) {
             return
         }
         val file = File(path)

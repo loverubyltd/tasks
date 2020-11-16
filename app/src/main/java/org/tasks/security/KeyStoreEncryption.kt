@@ -40,7 +40,7 @@ class KeyStoreEncryption @Inject constructor() {
     }
 
     fun decrypt(text: String?): String? {
-        if (isNullOrEmpty(text)) {
+        if (text.isNullOrEmpty()) {
             return null
         }
         val decoded = Base64.decode(text, Base64.DEFAULT)

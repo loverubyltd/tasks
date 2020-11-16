@@ -100,10 +100,10 @@ class Place : Serializable, Parcelable {
 
     val displayName: String
         get() {
-            if (!Strings.isNullOrEmpty(name) && !COORDS.matcher(name!!).matches()) {
+            if (!name.isNullOrEmpty() && !COORDS.matcher(name!!).matches()) {
                 return name!!
             }
-            return if (!Strings.isNullOrEmpty(address)) {
+            return if (!address.isNullOrEmpty()) {
                 address!!
             } else {
                 "${formatCoordinate(latitude, true)} ${formatCoordinate(longitude, false)}"
@@ -111,7 +111,7 @@ class Place : Serializable, Parcelable {
         }
 
     val displayAddress: String?
-        get() = if (Strings.isNullOrEmpty(address)) null else address!!.replace("$name, ", "")
+        get() = if (address.isNullOrEmpty()) null else address!!.replace("$name, ", "")
 
     fun open(context: Context?) {
         context?.safeStartActivity(

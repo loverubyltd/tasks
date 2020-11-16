@@ -105,7 +105,7 @@ class Synchronization : InjectingPreferenceFragment() {
             val preference = Preference(context)
             preference.title = account
             val error = googleTaskAccount.error
-            if (isNullOrEmpty(error)) {
+            if (error.isNullOrEmpty()) {
                 preference.setSummary(R.string.gtasks_GPr_header)
             } else {
                 preference.summary = error
@@ -145,7 +145,7 @@ class Synchronization : InjectingPreferenceFragment() {
             val preference = Preference(context)
             preference.title = account.name
             val error = account.error
-            if (isNullOrEmpty(error)) {
+            if (error.isNullOrEmpty()) {
                 preference.setSummary(when {
                     account.isCaldavAccount -> R.string.caldav
                     account.isTasksOrg -> R.string.tasks_org

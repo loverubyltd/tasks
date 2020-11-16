@@ -94,7 +94,7 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
             return
         }
         val newName = newName
-        if (isNullOrEmpty(newName)) {
+        if (newName.isNullOrEmpty()) {
             Toast.makeText(this, R.string.name_cannot_be_empty, Toast.LENGTH_LONG).show()
             return
         }
@@ -153,7 +153,7 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
 
     override fun hasChanges(): Boolean {
         return if (isNewList) {
-            selectedColor >= 0 || !isNullOrEmpty(newName)
+            selectedColor >= 0 || !newName.isNullOrEmpty()
         } else colorChanged() || nameChanged() || iconChanged()
     }
 

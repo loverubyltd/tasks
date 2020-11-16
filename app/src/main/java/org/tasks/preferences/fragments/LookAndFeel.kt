@@ -289,7 +289,7 @@ class LookAndFeel : InjectingPreferenceFragment() {
                 val newValue: Locale =
                     data!!.getSerializableExtra(LocalePickerDialog.EXTRA_LOCALE) as Locale
                 val override: String? = newValue.languageOverride
-                if (isNullOrEmpty(override)) {
+                if (override.isNullOrEmpty()) {
                     preferences.remove(R.string.p_language)
                 } else {
                     preferences.setString(R.string.p_language, override)

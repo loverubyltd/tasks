@@ -44,7 +44,7 @@ class TagPickerViewModel @ViewModelInject constructor(
     }
 
     private fun onUpdate(results: MutableList<TagData>) {
-        if (!isNullOrEmpty(text) && !results.any { text.equals(it.name, ignoreCase = true) }) {
+        if (!text.isNullOrEmpty() && !results.any { text.equals(it.name, ignoreCase = true) }) {
             results.add(0, TagData(text))
         }
         tags.value = results

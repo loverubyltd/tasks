@@ -70,7 +70,7 @@ class CaldavSynchronizer @Inject constructor(
                 setError(account, context.getString(R.string.requires_pro_subscription))
                 return
             }
-            if (isNullOrEmpty(account.password)) {
+            if (account.password.isNullOrEmpty()) {
                 setError(account, context.getString(R.string.password_required))
                 return
             }
@@ -157,7 +157,7 @@ class CaldavSynchronizer @Inject constructor(
         account.error = message
         caldavDao.update(account)
         localBroadcastManager.broadcastRefreshList()
-        if (!isNullOrEmpty(message)) {
+        if (!message.isNullOrEmpty()) {
             Timber.e(message)
         }
     }
@@ -192,7 +192,7 @@ class CaldavSynchronizer @Inject constructor(
         }
         val changed = members.filter { vCard: Response ->
             val eTag = vCard[GetETag::class.java]
-            if (eTag == null || isNullOrEmpty(eTag.eTag)) {
+            if (eTag == null || eTag.eTag.isNullOrEmpty()) {
                 return@filter false
             }
             val caldavTask = caldavDao.getTask(caldavCalendar.uuid!!, vCard.hrefName())
@@ -210,11 +210,11 @@ class CaldavSynchronizer @Inject constructor(
             for (vCard in responses) {
                 val eTag = vCard[GetETag::class.java]
                 val url = vCard.href
-                if (eTag == null || isNullOrEmpty(eTag.eTag)) {
+                if (eTag == null || eTag.eTag.isNullOrEmpty()) {
                     throw DavException("Received CalDAV GET response without ETag for $url")
                 }
                 val calendarData = vCard[CalendarData::class.java]
-                if (calendarData == null || isNullOrEmpty(calendarData.iCalendar)) {
+                if (calendarData == null || calendarData.iCalendar.isNullOrEmpty()) {
                     throw DavException("Received CalDAV GET response without CalendarData for $url")
                 }
                 val fileName = vCard.hrefName()
@@ -295,7 +295,7 @@ class CaldavSynchronizer @Inject constructor(
                     httpClient, httpUrl.newBuilder().addPathSegment(caldavTask.`object`!!).build())
             remote.put(requestBody, null, false) {
                 val getETag = fromResponse(it)
-                if (getETag != null && !isNullOrEmpty(getETag.eTag)) {
+                if (getETag != null && !getETag.eTag.isNullOrEmpty()) {
                     caldavTask.etag = getETag.eTag
                     caldavTask.vtodo = String(data)
                 }

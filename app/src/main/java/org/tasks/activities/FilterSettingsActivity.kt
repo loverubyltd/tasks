@@ -242,7 +242,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
 
     override suspend fun save() {
         val newName = newName
-        if (Strings.isNullOrEmpty(newName)) {
+        if (newName.isNullOrEmpty()) {
             nameLayout.error = getString(R.string.name_cannot_be_empty)
             return
         }
@@ -279,7 +279,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
 
     override fun hasChanges(): Boolean {
         return if (isNew) {
-            (!Strings.isNullOrEmpty(newName)
+            (!newName.isNullOrEmpty()
                     || selectedColor != 0 || selectedIcon != -1 || criteria.size > 1)
         } else newName != filter!!.listingTitle
                 || selectedColor != filter!!.tint

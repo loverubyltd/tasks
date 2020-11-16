@@ -68,7 +68,7 @@ class GCalHelper @Inject constructor(
             return null
         }
         val eventuri = getTaskEventUri(task)
-        if (!isNullOrEmpty(eventuri) && deleteEventIfExists) {
+        if (!eventuri.isNullOrEmpty() && deleteEventIfExists) {
             calendarEventProvider.deleteEvent(task)
         }
         try {
@@ -79,7 +79,7 @@ class GCalHelper @Inject constructor(
                     && !isNullOrEmpty(values.getAsString(CalendarContract.Events.CALENDAR_ID)))
             if (!valuesContainCalendarId) {
                 val calendarId = preferences.defaultCalendar
-                if (!isNullOrEmpty(calendarId)) {
+                if (!calendarId.isNullOrEmpty()) {
                     values.put(CalendarContract.Events.CALENDAR_ID, calendarId)
                 }
             }
@@ -116,7 +116,7 @@ class GCalHelper @Inject constructor(
 
     suspend fun rescheduleRepeatingTask(task: Task) {
         val taskUri = getTaskEventUri(task)
-        if (isNullOrEmpty(taskUri)) {
+        if (taskUri.isNullOrEmpty()) {
             return
         }
         val eventUri = Uri.parse(taskUri)

@@ -54,11 +54,11 @@ class EteSynchronizer @Inject constructor(
             setError(account, context.getString(R.string.requires_pro_subscription))
             return
         }
-        if (isNullOrEmpty(account.password)) {
+        if (account.password.isNullOrEmpty()) {
             setError(account, context.getString(R.string.password_required))
             return
         }
-        if (isNullOrEmpty(account.encryptionKey)) {
+        if (account.encryptionKey.isNullOrEmpty()) {
             setError(account, context.getString(R.string.encryption_password_required))
             return
         }
@@ -118,7 +118,7 @@ class EteSynchronizer @Inject constructor(
         account.error = message
         caldavDao.update(account)
         localBroadcastManager.broadcastRefreshList()
-        if (!isNullOrEmpty(message)) {
+        if (!message.isNullOrEmpty()) {
             Timber.e(message)
         }
     }
@@ -135,7 +135,7 @@ class EteSynchronizer @Inject constructor(
             localChanges[task.remoteId] = task
         }
         var remoteCtag = journal.lastUid
-        if (isNullOrEmpty(remoteCtag) || remoteCtag != caldavCalendar.ctag) {
+        if (remoteCtag.isNullOrEmpty() || remoteCtag != caldavCalendar.ctag) {
             Timber.v("Applying remote changes")
             client.getSyncEntries(userInfo, journal, caldavCalendar) {
                 applyEntries(caldavCalendar, it, localChanges.keys)
@@ -146,13 +146,13 @@ class EteSynchronizer @Inject constructor(
         val changes: MutableList<SyncEntry> = ArrayList()
         for (task in caldavDao.getMoved(caldavCalendar.uuid!!)) {
             val vtodo = task.vtodo
-            if (!isNullOrEmpty(vtodo)) {
+            if (!vtodo.isNullOrEmpty()) {
                 changes.add(SyncEntry(vtodo!!, SyncEntry.Actions.DELETE))
             }
         }
         for (task in localChanges.values) {
             val vtodo = task.vtodo
-            val existingTask = !isNullOrEmpty(vtodo)
+            val existingTask = !vtodo.isNullOrEmpty()
             if (task.isDeleted) {
                 if (existingTask) {
                     changes.add(SyncEntry(vtodo!!, SyncEntry.Actions.DELETE))
@@ -167,7 +167,7 @@ class EteSynchronizer @Inject constructor(
         remoteCtag = caldavCalendar.ctag
         val crypto = client.getCrypto(userInfo, journal)
         val updates: MutableList<Pair<JournalEntryManager.Entry, SyncEntry>> = ArrayList()
-        var previous: JournalEntryManager.Entry? = if (isNullOrEmpty(remoteCtag)) null else getFakeWithUid(remoteCtag!!)
+        var previous: JournalEntryManager.Entry? = if (remoteCtag.isNullOrEmpty()) null else getFakeWithUid(remoteCtag!!)
         for (syncEntry in changes) {
             val entry = JournalEntryManager.Entry()
             entry.update(crypto, syncEntry.toJson(), previous)

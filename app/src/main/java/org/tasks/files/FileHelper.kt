@@ -115,19 +115,19 @@ object FileHelper {
         if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
             val mimeType = context.contentResolver.getType(uri)
             val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
-            if (!isNullOrEmpty(extension)) {
+            if (!extension.isNullOrEmpty()) {
                 return extension
             }
         }
         val extension = MimeTypeMap.getFileExtensionFromUrl(uri.path)
-        return if (!isNullOrEmpty(extension)) {
+        return if (!extension.isNullOrEmpty()) {
             extension
         } else Files.getFileExtension(getFilename(context, uri)!!)
     }
 
     fun getMimeType(context: Context, uri: Uri): String? {
         val mimeType = context.contentResolver.getType(uri)
-        if (!isNullOrEmpty(mimeType)) {
+        if (!mimeType.isNullOrEmpty()) {
             return mimeType
         }
         val extension = getExtension(context, uri)

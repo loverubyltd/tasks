@@ -275,7 +275,7 @@ class NotificationManager @Inject constructor(
         }
 
         // new task edit in progress
-        if (isNullOrEmpty(task.title)) {
+        if (task.title.isNullOrEmpty()) {
             return null
         }
 
@@ -318,7 +318,7 @@ class NotificationManager @Inject constructor(
                                 if (type == ReminderService.TYPE_GEOFENCE_ENTER) R.string.location_arrived else R.string.location_departed,
                                 place.displayName))
             }
-        } else if (!isNullOrEmpty(taskDescription)) {
+        } else if (!taskDescription.isNullOrEmpty()) {
             builder
                     .setContentText(taskDescription)
                     .setStyle(NotificationCompat.BigTextStyle().bigText(taskDescription))

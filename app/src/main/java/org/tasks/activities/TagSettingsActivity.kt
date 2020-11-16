@@ -53,7 +53,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
         }
         name.setText(tagData.name)
         val autopopulateName = intent.getStringExtra(TOKEN_AUTOPOPULATE_NAME)
-        if (!isNullOrEmpty(autopopulateName)) {
+        if (!autopopulateName.isNullOrEmpty()) {
             name.setText(autopopulateName)
             intent.removeExtra(TOKEN_AUTOPOPULATE_NAME)
         } else if (isNewTag) {
@@ -85,7 +85,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
 
     override suspend fun save() {
         val newName = newName
-        if (isNullOrEmpty(newName)) {
+        if (newName.isNullOrEmpty()) {
             nameLayout.error = getString(R.string.name_cannot_be_empty)
             return
         }
@@ -115,7 +115,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
 
     override fun hasChanges(): Boolean {
         return if (isNewTag) {
-            selectedColor >= 0 || selectedIcon >= 0 || !isNullOrEmpty(newName)
+            selectedColor >= 0 || selectedIcon >= 0 || !newName.isNullOrEmpty()
         } else {
             selectedColor != tagData.getColor()
                     || selectedIcon != tagData.getIcon()

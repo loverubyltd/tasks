@@ -69,7 +69,7 @@ class SubtasksHelper @Inject constructor(
             val digitsOnly = serializedTree!!.split("[\\[\\],\\s]".toRegex()).toTypedArray() // Split on [ ] , or whitespace chars
             for (idString in digitsOnly) {
                 try {
-                    if (!isNullOrEmpty(idString)) {
+                    if (!idString.isNullOrEmpty()) {
                         ids.add(idString.toLong())
                     }
                 } catch (e: NumberFormatException) {
@@ -83,7 +83,7 @@ class SubtasksHelper @Inject constructor(
             val ids = ArrayList<String>()
             val values = serializedTree!!.split("[\\[\\],\"\\s]".toRegex()).toTypedArray() // Split on [ ] , or whitespace chars
             for (idString in values) {
-                if (!isNullOrEmpty(idString)) {
+                if (!idString.isNullOrEmpty()) {
                     ids.add(idString)
                 }
             }

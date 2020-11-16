@@ -119,7 +119,7 @@ class TaskEditFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         discard.setShowAsAction(
                 if (model.isNew) MenuItem.SHOW_AS_ACTION_IF_ROOM else MenuItem.SHOW_AS_ACTION_NEVER)
         if (savedInstanceState == null) {
-            showKeyboard = model.isNew && isNullOrEmpty(model.title)
+            showKeyboard = model.isNew && model.title.isNullOrEmpty()
         }
         val params = binding.appbarlayout.layoutParams as CoordinatorLayout.LayoutParams
         params.behavior = AppBarLayout.Behavior()
@@ -260,7 +260,7 @@ class TaskEditFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             tlf?.let { taskListFragment ->
                 val model = editViewModel.task!!
                 taskListFragment.onTaskCreated(model.uuid)
-                if (!isNullOrEmpty(model.calendarURI)) {
+                if (!model.calendarURI.isNullOrEmpty()) {
                     taskListFragment.makeSnackbar(R.string.calendar_event_created, model.title)
                             ?.setAction(R.string.action_open) {
                                 val uri = model.calendarURI

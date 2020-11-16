@@ -224,7 +224,7 @@ class Preferences @JvmOverloads constructor(
 
     private fun getUri(key: Int): Uri? {
         val uri = getStringValue(key)
-        return if (isNullOrEmpty(uri)) null else Uri.parse(uri)
+        return if (uri.isNullOrEmpty()) null else Uri.parse(uri)
     }
 
     fun setUri(key: Int, uri: URI) {

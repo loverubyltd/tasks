@@ -87,7 +87,7 @@ class AstridTaskAdapter internal constructor(
             val tasks = taskDao.getRecurringTasks(chained)
             var madeChanges = false
             for (t in tasks) {
-                if (!isNullOrEmpty(t.recurrence)) {
+                if (!t.recurrence.isNullOrEmpty()) {
                     updater.moveToParentOf(t.uuid, itemId)
                     madeChanges = true
                 }

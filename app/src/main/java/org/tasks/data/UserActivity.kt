@@ -68,7 +68,7 @@ class UserActivity : Parcelable {
     }
 
     val pictureUri: Uri?
-        get() = if (Strings.isNullOrEmpty(picture)) null else Uri.parse(picture)
+        get() = if (picture.isNullOrEmpty()) null else Uri.parse(picture)
 
     fun convertPictureUri() {
         setPicture(getLegacyPictureUri(picture))
@@ -101,7 +101,7 @@ class UserActivity : Parcelable {
 
         private fun getLegacyPictureUri(value: String?): Uri? {
             return try {
-                if (Strings.isNullOrEmpty(value)) {
+                if (value.isNullOrEmpty()) {
                     return null
                 }
                 if (value!!.contains("uri") || value.contains("path")) {

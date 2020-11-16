@@ -90,7 +90,7 @@ class EteSyncAccountSettingsActivity : BaseCaldavAccountSettingsActivity(), Tool
 
     private fun testUserInfo(userInfo: UserInfoManager.UserInfo?): Boolean {
         val encryptionKey = caldavAccount!!.getEncryptionPassword(encryption)
-        if (userInfo != null && !isNullOrEmpty(encryptionKey)) {
+        if (userInfo != null && !encryptionKey.isNullOrEmpty()) {
             try {
                 val cryptoManager = CryptoManager(userInfo.version!!.toInt(), encryptionKey, "userInfo")
                 userInfo.verify(cryptoManager)
@@ -135,7 +135,7 @@ class EteSyncAccountSettingsActivity : BaseCaldavAccountSettingsActivity(), Tool
     override val newURL: String
         get() {
             val url = super.newURL
-            return if (isNullOrEmpty(url)) getString(R.string.etesync_url) else url
+            return if (url.isNullOrEmpty()) getString(R.string.etesync_url) else url
         }
 
     override val newPassword: String

@@ -90,7 +90,7 @@ class EncryptionSettingsActivity : ThemedInjectingAppCompatActivity(), Toolbar.O
         }
         val encryptionPassword = newEncryptionPassword
         val derivedKey = caldavAccount!!.getEncryptionPassword(encryption)
-        if (isNullOrEmpty(encryptionPassword) && isNullOrEmpty(derivedKey)) {
+        if (encryptionPassword.isNullOrEmpty() && derivedKey.isNullOrEmpty()) {
             binding.encryptionPasswordLayout.error = getString(R.string.encryption_password_required)
             return@launch
         }
@@ -101,7 +101,7 @@ class EncryptionSettingsActivity : ThemedInjectingAppCompatActivity(), Toolbar.O
                 return@launch
             }
         }
-        val key = if (isNullOrEmpty(encryptionPassword)) derivedKey else deriveKey(caldavAccount!!.username!!, encryptionPassword)
+        val key = if (encryptionPassword.isNullOrEmpty()) derivedKey else deriveKey(caldavAccount!!.username!!, encryptionPassword)
         val cryptoManager: CryptoManager
         cryptoManager = try {
             val version = if (userInfo == null) CURRENT_VERSION else userInfo!!.version!!.toInt()

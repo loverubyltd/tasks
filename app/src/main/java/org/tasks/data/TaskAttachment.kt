@@ -51,7 +51,7 @@ class TaskAttachment {
     }
 
     fun parseUri(): Uri? {
-        return if (Strings.isNullOrEmpty(uri)) null else Uri.parse(uri)
+        return if (uri.isNullOrEmpty()) null else Uri.parse(uri)
     }
 
     companion object {

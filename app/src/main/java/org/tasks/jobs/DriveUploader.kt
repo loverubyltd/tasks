@@ -101,7 +101,7 @@ class DriveUploader @WorkerInject constructor(
     private suspend fun getFolder(): File? {
         val folderId = preferences.getStringValue(R.string.p_google_drive_backup_folder)
         var file: File? = null
-        if (!isNullOrEmpty(folderId)) {
+        if (!folderId.isNullOrEmpty()) {
             try {
                 file = drive.getFile(folderId)
             } catch (e: GoogleJsonResponseException) {

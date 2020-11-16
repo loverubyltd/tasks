@@ -335,7 +335,7 @@ object TitleParser {
         }
         if (cal
                 != null) { // if at least one of the above has been called, write to task. else do nothing.
-            if (!isNullOrEmpty(inputText)) {
+            if (!inputText.isNullOrEmpty()) {
                 task.title = inputText
             }
             if (containsSpecificTime) {

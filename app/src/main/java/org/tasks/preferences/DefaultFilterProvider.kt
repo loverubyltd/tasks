@@ -96,7 +96,7 @@ class DefaultFilterProvider @Inject constructor(
             TYPE_CUSTOM_FILTER -> filterDao.getById(split[1].toLong())?.let(::CustomFilter)
             TYPE_TAG -> {
                 val tag = tagDataDao.getByUuid(split[1])
-                if (tag == null || isNullOrEmpty(tag.name)) null else TagFilter(tag)
+                if (tag == null || tag.name.isNullOrEmpty()) null else TagFilter(tag)
             }
             TYPE_GOOGLE_TASKS -> googleTaskListDao.getById(split[1].toLong())?.let { GtasksFilter(it) }
             TYPE_CALDAV -> caldavDao.getCalendarByUuid(split[1])?.let { CaldavFilter(it) }

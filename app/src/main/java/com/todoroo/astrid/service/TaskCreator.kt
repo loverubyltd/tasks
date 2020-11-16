@@ -38,9 +38,9 @@ class TaskCreator @Inject constructor(
         val task = createWithValues(title)
         taskDao.createNew(task)
         val gcalCreateEventEnabled = preferences.isDefaultCalendarSet && task.hasDueDate() // $NON-NLS-1$
-        if (!isNullOrEmpty(task.title)
+        if (!task.title.isNullOrEmpty()
                 && gcalCreateEventEnabled
-                && isNullOrEmpty(task.calendarURI)) {
+                && task.calendarURI.isNullOrEmpty()) {
             val calendarUri = gcalHelper.createTaskEvent(task, preferences.defaultCalendar)
             task.calendarURI = calendarUri.toString()
         }

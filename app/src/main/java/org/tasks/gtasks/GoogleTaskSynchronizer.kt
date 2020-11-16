@@ -120,7 +120,7 @@ class GoogleTaskSynchronizer @Inject constructor(
                 gtaskLists.addAll(items)
             }
             nextPageToken = remoteLists.nextPageToken
-        } while (!isNullOrEmpty(nextPageToken))
+        } while (!nextPageToken.isNullOrEmpty())
         gtasksListService.updateLists(account, gtaskLists)
         val defaultRemoteList = defaultFilterProvider.defaultList
         if (defaultRemoteList is GtasksFilter) {
@@ -130,7 +130,7 @@ class GoogleTaskSynchronizer @Inject constructor(
             }
         }
         for (list in googleTaskListDao.getByRemoteId(Lists.transform(gtaskLists) { obj: TaskList? -> obj!!.id })) {
-            if (isNullOrEmpty(list.remoteId)) {
+            if (list.remoteId.isNullOrEmpty()) {
                 firebase.reportException(RuntimeException("Empty remote id"))
                 continue
             }
@@ -163,7 +163,7 @@ class GoogleTaskSynchronizer @Inject constructor(
                 tasks.addAll(it)
             }
             nextPageToken = taskList?.nextPageToken
-        } while (!isNullOrEmpty(nextPageToken))
+        } while (!nextPageToken.isNullOrEmpty())
         return tasks
     }
 
@@ -187,9 +187,9 @@ class GoogleTaskSynchronizer @Inject constructor(
         val remoteId: String?
         val defaultRemoteList = defaultFilterProvider.defaultList
         var listId = if (defaultRemoteList is GtasksFilter) defaultRemoteList.remoteId else DEFAULT_LIST
-        if (isNullOrEmpty(gtasksMetadata.remoteId)) { // Create case
+        if (gtasksMetadata.remoteId.isNullOrEmpty()) { // Create case
             val selectedList = gtasksMetadata.listId
-            if (!isNullOrEmpty(selectedList)) {
+            if (!selectedList.isNullOrEmpty()) {
                 listId = selectedList
             }
             newlyCreated = true
@@ -202,7 +202,7 @@ class GoogleTaskSynchronizer @Inject constructor(
         // If task was newly created but without a title, don't sync--we're in the middle of
         // creating a task which may end up being cancelled. Also don't sync new but already
         // deleted tasks
-        if (newlyCreated && (isNullOrEmpty(task.title) || task.deletionDate > 0)) {
+        if (newlyCreated && (task.title.isNullOrEmpty() || task.deletionDate > 0)) {
             return
         }
 
@@ -226,7 +226,7 @@ class GoogleTaskSynchronizer @Inject constructor(
             val parent = gtasksMetadata.parent
             val localParent = if (parent > 0) googleTaskDao.getRemoteId(parent) else null
             val previous = googleTaskDao.getPrevious(
-                    listId!!, if (isNullOrEmpty(localParent)) 0 else parent, gtasksMetadata.order)
+                    listId!!, if (localParent.isNullOrEmpty()) 0 else parent, gtasksMetadata.order)
             val created: Task?
             created = try {
                 gtasksInvoker.createGtask(listId, remoteModel, localParent, previous)
@@ -249,7 +249,7 @@ class GoogleTaskSynchronizer @Inject constructor(
                         val localParent = if (parent > 0) googleTaskDao.getRemoteId(parent) else null
                         val previous = googleTaskDao.getPrevious(
                                 listId!!,
-                                if (isNullOrEmpty(localParent)) 0 else parent,
+                                if (localParent.isNullOrEmpty()) 0 else parent,
                                 gtasksMetadata.order)
                         gtasksInvoker
                                 .moveGtask(listId, remoteModel.id, localParent, previous)
@@ -302,7 +302,7 @@ class GoogleTaskSynchronizer @Inject constructor(
                 tasks.addAll(items)
             }
             nextPageToken = taskList.nextPageToken
-        } while (!isNullOrEmpty(nextPageToken))
+        } while (!nextPageToken.isNullOrEmpty())
         Collections.sort(tasks, PARENTS_FIRST)
         for (gtask in tasks) {
             val remoteId = gtask.id
@@ -361,7 +361,7 @@ class GoogleTaskSynchronizer @Inject constructor(
     }
 
     private suspend fun write(task: com.todoroo.astrid.data.Task?, googleTask: GoogleTask) {
-        if (!(isNullOrEmpty(task!!.title) && isNullOrEmpty(task.notes))) {
+        if (!(isNullOrEmpty(task!!.title) && task.notes.isNullOrEmpty())) {
             task.suppressSync()
             task.suppressRefresh()
             if (task.isNew) {
@@ -382,10 +382,10 @@ class GoogleTaskSynchronizer @Inject constructor(
         private const val MAX_TITLE_LENGTH = 1024
         private const val MAX_DESCRIPTION_LENGTH = 8192
         private val PARENTS_FIRST = Comparator { o1: Task, o2: Task ->
-            if (isNullOrEmpty(o1.parent)) {
-                if (isNullOrEmpty(o2.parent)) 0 else -1
+            if (o1.parent.isNullOrEmpty()) {
+                if (o2.parent.isNullOrEmpty()) 0 else -1
             } else {
-                if (isNullOrEmpty(o2.parent)) 1 else 0
+                if (o2.parent.isNullOrEmpty()) 1 else 0
             }
         }
 
@@ -408,8 +408,8 @@ class GoogleTaskSynchronizer @Inject constructor(
         }
 
         fun getTruncatedValue(currentValue: String?, newValue: String?, maxLength: Int): String? {
-            return if (isNullOrEmpty(newValue)
-                    || newValue!!.length < maxLength || isNullOrEmpty(currentValue)
+            return if (newValue.isNullOrEmpty()
+                    || newValue!!.length < maxLength || currentValue.isNullOrEmpty()
                     || !currentValue!!.startsWith(newValue)) newValue else currentValue
         }
     }

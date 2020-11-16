@@ -46,7 +46,7 @@ class Filter {
     }
 
     val valuesAsMap: Map<String, Any>?
-        get() = if (Strings.isNullOrEmpty(values)) null else AndroidUtilities.mapFromSerializedString(values)
+        get() = if (values.isNullOrEmpty()) null else AndroidUtilities.mapFromSerializedString(values)
 
     fun getColor(): Int? {
         return (if (color == null) 0 else color)!!

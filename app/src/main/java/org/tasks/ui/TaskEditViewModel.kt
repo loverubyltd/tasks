@@ -338,7 +338,7 @@ class TaskEditViewModel @ViewModelInject constructor(
         }
 
         for (subtask in newSubtasks) {
-            if (Strings.isNullOrEmpty(subtask.title)) {
+            if (subtask.title.isNullOrEmpty()) {
                 continue
             }
             if (!subtask.isCompleted) {

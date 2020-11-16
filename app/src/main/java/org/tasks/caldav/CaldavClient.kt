@@ -64,7 +64,7 @@ class CaldavClient(
             val currentUserPrincipal = response[CurrentUserPrincipal::class.java]
             if (currentUserPrincipal != null) {
                 val href = currentUserPrincipal.href
-                if (!isNullOrEmpty(href)) {
+                if (!href.isNullOrEmpty()) {
                     return href
                 }
             }
@@ -88,7 +88,7 @@ class CaldavClient(
             throw DisplayableException(R.string.caldav_home_set_not_found)
         }
         val homeSet = hrefs[0]
-        if (isNullOrEmpty(homeSet)) {
+        if (homeSet.isNullOrEmpty()) {
             throw DisplayableException(R.string.caldav_home_set_not_found)
         }
         return davResource.location.resolve(homeSet).toString()
@@ -113,7 +113,7 @@ class CaldavClient(
             principal = tryFindPrincipal("")
         }
         provider.forUrl(
-                (if (isNullOrEmpty(principal)) httpUrl else httpUrl!!.resolve(principal!!)).toString(),
+                (if (principal.isNullOrEmpty()) httpUrl else httpUrl!!.resolve(principal!!)).toString(),
                 username,
                 password,
                 token)

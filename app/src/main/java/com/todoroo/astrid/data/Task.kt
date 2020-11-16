@@ -177,7 +177,7 @@ class Task : Parcelable {
     }
 
     var uuid: String
-        get() = if (Strings.isNullOrEmpty(remoteId)) NO_UUID else remoteId!!
+        get() = if (remoteId.isNullOrEmpty()) NO_UUID else remoteId!!
         set(uuid) {
             remoteId = uuid
         }
@@ -254,7 +254,7 @@ class Task : Parcelable {
     }
 
     val isRecurring: Boolean
-        get() = !Strings.isNullOrEmpty(recurrence)
+        get() = !recurrence.isNullOrEmpty()
 
     fun setRecurrence(rrule: RRule, afterCompletion: Boolean) {
         recurrence = rrule.toIcal() + if (afterCompletion) ";FROM=COMPLETION" else ""
@@ -271,7 +271,7 @@ class Task : Parcelable {
     }
 
     fun hasNotes(): Boolean {
-        return !Strings.isNullOrEmpty(notes)
+        return !notes.isNullOrEmpty()
     }
 
     val isNotifyModeNonstop: Boolean
@@ -633,7 +633,7 @@ class Task : Parcelable {
                 ?.replace("COUNT=-1;", "")
 
         @JvmStatic fun isUuidEmpty(uuid: String?): Boolean {
-            return NO_UUID == uuid || Strings.isNullOrEmpty(uuid)
+            return NO_UUID == uuid || uuid.isNullOrEmpty()
         }
 
         fun String?.isRepeatAfterCompletion() = this?.contains("FROM=COMPLETION") ?: false

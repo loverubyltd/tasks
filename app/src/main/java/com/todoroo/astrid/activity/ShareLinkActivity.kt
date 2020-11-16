@@ -86,7 +86,7 @@ class ShareLinkActivity : InjectingAppCompatActivity() {
     private fun copyAttachment(intent: Intent): ArrayList<Uri> {
         val uri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM) ?: return ArrayList()
         var filename = FileHelper.getFilename(context, uri)
-        if (isNullOrEmpty(filename)) {
+        if (filename.isNullOrEmpty()) {
             filename = intent.getStringExtra(Intent.EXTRA_SUBJECT)
                     ?.takeIf { it.isNotBlank() }
                     ?.let { it.substring(0, min(it.length, FileHelper.MAX_FILENAME_LENGTH)) }

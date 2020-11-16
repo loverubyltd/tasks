@@ -163,7 +163,7 @@ class CommentBarFragment : TaskEditControlFragment() {
         commentField.setText("")
         pendingCommentPicture = null
         resetPictureButton()
-        callback.addComment(if (isNullOrEmpty(message)) " " else message, picture)
+        callback.addComment(if (message.isNullOrEmpty()) " " else message, picture)
     }
 
     private fun resetPictureButton() {

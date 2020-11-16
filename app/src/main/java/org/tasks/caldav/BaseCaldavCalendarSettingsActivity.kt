@@ -92,7 +92,7 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
             return
         }
         val name = newName
-        if (isNullOrEmpty(name)) {
+        if (name.isNullOrEmpty()) {
             nameLayout.error = getString(R.string.name_cannot_be_empty)
             return
         }
@@ -182,7 +182,7 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
     }
 
     override fun hasChanges(): Boolean {
-        return if (caldavCalendar == null) !isNullOrEmpty(newName) || selectedColor != 0 || selectedIcon != -1 else nameChanged() || iconChanged() || colorChanged()
+        return if (caldavCalendar == null) !newName.isNullOrEmpty() || selectedColor != 0 || selectedIcon != -1 else nameChanged() || iconChanged() || colorChanged()
     }
 
     private fun nameChanged(): Boolean {

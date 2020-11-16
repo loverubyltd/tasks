@@ -11,7 +11,7 @@ class UpdateEteSyncAccountViewModel @ViewModelInject constructor(
     suspend fun updateAccount(url: String, user: String, pass: String?, token: String) {
         run {
             client.setForeground()
-            if (isNullOrEmpty(pass)) {
+            if (pass.isNullOrEmpty()) {
                 Pair.create(client.forUrl(url, user, null, token).userInfo(), token)
             } else {
                 val newToken = client.forUrl(url, user, null, null).getToken(pass)
