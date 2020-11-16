@@ -32,7 +32,7 @@ class Inventory @Inject constructor(
         for (purchase in items) {
             if (signatureVerifier.verifySignature(purchase)) {
                 Timber.d("add(%s)", purchase)
-                this.purchases[purchase.sku] = purchase
+                // FIXME this.purchases[purchase.sku] = purchase
             }
         }
         hasPro = purchases.values.any { it.isProSubscription } || purchases.containsKey(SKU_VIP)
