@@ -18,6 +18,7 @@ buildscript {
 
 plugins {
     id("com.diffplug.spotless") version "5.7.0"
+    id("io.gitlab.arturbosch.detekt") version "1.14.2"
 }
 
 allprojects {
@@ -46,6 +47,14 @@ allprojects {
             )
             ktlint()
         }
+    }
+
+  apply(plugin = "io.gitlab.arturbosch.detekt")
+
+  detekt {
+      toolVersion = "1.14.2"
+      config = files("config/detekt/detekt.yml")
+      buildUponDefaultConfig = true
     }
 }
 
