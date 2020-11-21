@@ -2,7 +2,6 @@ package org.tasks.dialogs
 
 import android.app.Activity
 import android.app.Dialog
-import android.app.ProgressDialog
 import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment

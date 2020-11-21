@@ -2,7 +2,6 @@ package org.tasks.dialogs
 
 import android.app.Activity.RESULT_OK
 import android.app.Dialog
-import android.app.ProgressDialog
 import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment

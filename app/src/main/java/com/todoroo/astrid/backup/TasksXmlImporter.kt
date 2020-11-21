@@ -6,7 +6,6 @@
 package com.todoroo.astrid.backup
 
 import android.app.Activity
-import android.app.ProgressDialog
 import android.content.DialogInterface
 import android.net.Uri
 import android.os.Handler
@@ -22,6 +21,7 @@ import org.tasks.backup.XmlReader
 import org.tasks.data.*
 import org.tasks.data.Place.Companion.newPlace
 import org.tasks.dialogs.DialogBuilder
+import org.tasks.dialogs.ProgressDialog
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory

@@ -6,7 +6,6 @@
 package org.tasks.drive
 
 import android.accounts.AccountManager
-import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
@@ -15,6 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.dialogs.DialogBuilder
+import org.tasks.dialogs.ProgressDialog
 import org.tasks.gtasks.GoogleAccountManager
 import org.tasks.injection.InjectingAppCompatActivity
 import org.tasks.preferences.Preferences

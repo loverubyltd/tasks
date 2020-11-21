@@ -1,7 +1,6 @@
 package org.tasks.backup
 
 import android.app.Activity
-import android.app.ProgressDialog
 import android.app.backup.BackupManager
 import android.content.Context
 import android.net.Uri
@@ -18,6 +17,7 @@ import org.tasks.R
 import org.tasks.backup.BackupContainer.TaskBackup
 import org.tasks.data.*
 import org.tasks.date.DateTimeUtils.newDateTime
+import org.tasks.dialogs.ProgressDialog
 import org.tasks.files.FileHelper
 import org.tasks.jobs.WorkManager
 import org.tasks.preferences.Preferences

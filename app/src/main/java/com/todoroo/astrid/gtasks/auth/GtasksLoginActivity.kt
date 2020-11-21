@@ -7,7 +7,6 @@ package com.todoroo.astrid.gtasks.auth
 
 import android.accounts.AccountManager
 import android.app.Activity
-import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
@@ -23,6 +22,7 @@ import org.tasks.analytics.Firebase
 import org.tasks.data.GoogleTaskAccount
 import org.tasks.data.GoogleTaskListDao
 import org.tasks.dialogs.DialogBuilder
+import org.tasks.dialogs.ProgressDialog
 import org.tasks.gtasks.GoogleAccountManager
 import org.tasks.injection.InjectingAppCompatActivity
 import org.tasks.preferences.ActivityPermissionRequestor

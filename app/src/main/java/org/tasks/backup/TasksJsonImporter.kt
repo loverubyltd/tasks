@@ -1,6 +1,5 @@
 package org.tasks.backup
 
-import android.app.ProgressDialog
 import android.content.Context
 import android.net.Uri
 import android.os.Handler
@@ -14,6 +13,7 @@ import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.data.*
 import org.tasks.data.Place.Companion.newPlace
+import org.tasks.dialogs.ProgressDialog
 import org.tasks.preferences.Preferences
 import timber.log.Timber
 import java.io.FileNotFoundException
@@ -42,7 +42,7 @@ class TasksJsonImporter @Inject constructor(
     private val result = ImportResult()
 
     private fun setProgressMessage(
-            handler: Handler, progressDialog: ProgressDialog?, message: String) {
+        handler: Handler, progressDialog: ProgressDialog?, message: String) {
         if (progressDialog == null) {
             return
         }
