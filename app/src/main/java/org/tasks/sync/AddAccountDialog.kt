@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.res.use
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.todoroo.astrid.gtasks.auth.GtasksLoginActivity
@@ -35,15 +36,30 @@ class AddAccountDialog : DialogFragment() {
         val services = requireActivity().resources.getStringArray(R.array.synchronization_services)
         val descriptions = requireActivity().resources.getStringArray(R.array.synchronization_services_description)
         val typedArray = requireActivity().resources.obtainTypedArray(R.array.synchronization_services_icons)
-        val icons = IntArray(typedArray.length())
-        for (i in icons.indices) {
-            icons[i] = typedArray.getResourceId(i, 0)
+        val icons = typedArray.use {
+            val newArr = IntArray(it.length())
+            for (i in newArr.indices) {
+                newArr[i] = it.getResourceId(i, 0)
+            }
+            newArr
         }
-        typedArray.recycle()
+        val supportedArray = requireActivity().resources.obtainTypedArray(R.array.synchronization_services_supported)
+        val supported = supportedArray.use {
+            val newArr = BooleanArray(it.length())
+            for (i in newArr.indices) {
+                newArr[i] = it.getBoolean(i, true)
+            }
+            newArr
+        }
+
         val adapter: ArrayAdapter<String> = object : ArrayAdapter<String>(
                 requireActivity(), R.layout.simple_list_item_2_themed, R.id.text1, services) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getView(position, convertView, parent)
+                if (!supported[position]) {
+                    view.visibility = View.GONE
+                    return view
+                }
                 view.findViewById<TextView>(R.id.text1).text = services[position]
                 view.findViewById<TextView>(R.id.text2).text = descriptions[position]
                 val icon = view.findViewById<ImageView>(R.id.image_view)
@@ -58,28 +74,35 @@ class AddAccountDialog : DialogFragment() {
                 .newDialog()
                 .setTitle(R.string.choose_synchronization_service)
                 .setSingleChoiceItems(adapter, -1) { dialog, which ->
-                    when (which) {
-                        0 -> if (BuildConfig.FLAVOR == "generic") {
-                            dialogBuilder
+                    if (supported[which]) {
+                        when (which) {
+                            0 -> if (BuildConfig.FLAVOR == "generic") {
+                                dialogBuilder
                                     .newDialog(R.string.github_sponsor_login)
                                     .setPositiveButton(R.string.ok, null)
                                     .show()
-                        } else {
-                            activity?.startActivityForResult(
+                            } else {
+                                activity?.startActivityForResult(
                                     Intent(activity, SignInActivity::class.java),
-                                    REQUEST_TASKS_ORG)
-                        }
-                        1 -> activity?.startActivityForResult(
+                                    REQUEST_TASKS_ORG
+                                )
+                            }
+                            1 -> activity?.startActivityForResult(
                                 Intent(activity, GtasksLoginActivity::class.java),
-                                REQUEST_GOOGLE_TASKS)
-                        2 -> activity?.startActivityForResult(
+                                REQUEST_GOOGLE_TASKS
+                            )
+                            2 -> activity?.startActivityForResult(
                                 Intent(activity, CaldavAccountSettingsActivity::class.java),
-                                REQUEST_CALDAV_SETTINGS)
-                        3 -> activity?.startActivityForResult(
+                                REQUEST_CALDAV_SETTINGS
+                            )
+                            3 -> activity?.startActivityForResult(
                                 Intent(activity, EteSyncAccountSettingsActivity::class.java),
-                                REQUEST_CALDAV_SETTINGS)
-                        4 -> activity?.startActivity(
-                                Intent(ACTION_VIEW, Uri.parse(getString(R.string.url_davx5))))
+                                REQUEST_CALDAV_SETTINGS
+                            )
+                            4 -> activity?.startActivity(
+                                Intent(ACTION_VIEW, Uri.parse(getString(R.string.url_davx5)))
+                            )
+                        }
                     }
                     dialog.dismiss()
                 }

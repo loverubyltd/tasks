@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="synchronization_services_supported">
+        <item>false</item>
+        <item>false</item>
+        <item>true</item>
+        <item>true</item>
+        <item>true</item>
+    </array>
+</resources>
