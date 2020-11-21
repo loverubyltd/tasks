@@ -30,7 +30,7 @@ class DialogBuilder @Inject constructor(
 
     fun newProgressDialog(messageId: Int): ProgressDialog = newProgressDialog().apply {
         isIndeterminate = true
-        setProgressStyle(ProgressDialog.STYLE_SPINNER)
+        progressStyle = ProgressDialog.STYLE_SPINNER
         setMessage(activity.getString(messageId))
         setCancelable(false)
         setCanceledOnTouchOutside(false)

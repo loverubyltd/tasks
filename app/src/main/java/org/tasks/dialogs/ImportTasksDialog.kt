@@ -29,11 +29,13 @@ class ImportTasksDialog : DialogFragment() {
         val arguments = requireArguments()
         val data = arguments.getParcelable<Uri>(EXTRA_URI)
         val extension = arguments.getString(EXTRA_EXTENSION)
-        val progressDialog = dialogBuilder.newProgressDialog()
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER)
-        progressDialog.setCancelable(false)
-        progressDialog.isIndeterminate = true
-        progressDialog.show()
+        val progressDialog = dialogBuilder.newProgressDialog().apply {
+            progressStyle = ProgressDialog.STYLE_SPINNER
+            setCancelable(false)
+            isIndeterminate = true
+        }.apply {
+            show()
+        }
         isCancelable = false
         when (extension) {
             "json" -> lifecycleScope.launch {

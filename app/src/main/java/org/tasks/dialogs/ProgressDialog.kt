@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("unused")
+
 package org.tasks.dialogs
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
@@ -35,8 +36,8 @@ import org.tasks.databinding.DialogProgressHorizontalBinding
 import java.text.NumberFormat
 
 /**
- * A dialog showing a progress indicator and an optional text _essage or view.
- * Only a text _essage or a view can be used at the same time.
+ * A dialog showing a progress indicator and an optional text message or view.
+ * Only a text message or a view can be used at the same time.
  *
  *
  * The dialog can be _ade cancelable on back key press.
@@ -58,11 +59,7 @@ class ProgressDialog : AlertDialog {
     }
     private var _max = 0
     private var _progressVal = 0
-    private var _secondaryProgressVal = 0
     private var _incrementBy = 0
-    private var _incrementSecondaryBy = 0
-    private var _progressDrawable: Drawable? = null
-    private var _indeterminateDrawable: Drawable? = null
     private var _message: CharSequence? = null
     private var _indeterminate = false
     private var _hasStarted = false
@@ -85,7 +82,7 @@ class ProgressDialog : AlertDialog {
      */
     constructor(context: Context, theme: Int) : super(context, theme)
 
-    override fun onCreate(savedInstanceState: Bundle) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         val inflater = LayoutInflater.from(context)
         context.obtainStyledAttributes(
             null,
@@ -104,14 +101,16 @@ class ProgressDialog : AlertDialog {
                     override fun handleMessage(msg: Message) {
                         super.handleMessage(msg)
 
-                        /* Update the number and percent */
-                        val progress = _progress!!.progress
-                        val max = _progress!!.max
-                        val percent = progress.toDouble() / max.toDouble()
-
-                        _progressNumber!!.text = _progressNumberFormat.format(progress, max)
-                        _progressPercent!!.text =
-                            buildSpannedString { bold { _progressPercentFormat.format(percent) } }
+                        _progress?.let { bar ->
+                            /* Update the number and percent */
+                            val progress = bar.progress
+                            val max = bar.max
+                            val percent = progress.toDouble() / max.toDouble()
+                            _progressNumber!!.text = _progressNumberFormat.format(progress, max)
+                            _progressPercent!!.text = buildSpannedString {
+                                bold { append(_progressPercentFormat.format(percent)) }
+                            }
+                        }
                     }
                 }
                 val binding = DialogProgressHorizontalBinding.inflate(inflater)
@@ -132,20 +131,8 @@ class ProgressDialog : AlertDialog {
         if (_progressVal > 0) {
             progress = _progressVal
         }
-        if (_secondaryProgressVal > 0) {
-            secondaryProgress = _secondaryProgressVal
-        }
         if (_incrementBy > 0) {
             incrementProgressBy(_incrementBy)
-        }
-        if (_incrementSecondaryBy > 0) {
-            incrementSecondaryProgressBy(_incrementSecondaryBy)
-        }
-        if (_progressDrawable != null) {
-            setProgressDrawable(_progressDrawable)
-        }
-        if (_indeterminateDrawable != null) {
-            setIndeterminateDrawable(_indeterminateDrawable)
         }
         if (_message != null) {
             setMessage(_message!!)
@@ -186,29 +173,8 @@ class ProgressDialog : AlertDialog {
                 _progressVal = value
             }
         }
-    /**
-     * Gets the current secondary progress.
-     *
-     * @return the current secondary progress, a value between 0 and [.getMax]
-     */
-    /**
-     * Sets the secondary progress.
-     *
-     * @param secondaryProgress the current secondary progress, a value between 0 and
-     * [.getMax]
-     *
-     * @see ProgressBar.setSecondaryProgress
-     */
-    var secondaryProgress: Int
-        get() = _progress?.secondaryProgress ?: _secondaryProgressVal
-        set(secondaryProgress) {
-            if (_progress != null) {
-                _progress!!.secondaryProgress = secondaryProgress
-                onProgressChanged()
-            } else {
-                _secondaryProgressVal = secondaryProgress
-            }
-        }
+
+
     /**
      * Gets the maximum allowed progress value. The default value is 100.
      *
@@ -243,51 +209,7 @@ class ProgressDialog : AlertDialog {
         }
     }
 
-    /**
-     * Increments the current secondary progress value.
-     *
-     * @param diff the amount by which the current secondary progress will be incremented,
-     * up to [.getMax]
-     */
-    fun incrementSecondaryProgressBy(diff: Int) {
-        if (_progress != null) {
-            _progress!!.incrementSecondaryProgressBy(diff)
-            onProgressChanged()
-        } else {
-            _incrementSecondaryBy += diff
-        }
-    }
 
-    /**
-     * Sets the drawable to be used to display the progress value.
-     *
-     * @param d the drawable to be used
-     *
-     * @see ProgressBar.setProgressDrawable
-     */
-    fun setProgressDrawable(d: Drawable?) {
-        if (_progress != null) {
-            _progress!!.progressDrawable = d
-        } else {
-            _progressDrawable = d
-        }
-    }
-
-    /**
-     * Sets the drawable to be used to display the indeterminate progress value.
-     *
-     * @param d the drawable to be used
-     *
-     * @see ProgressBar.setProgressDrawable
-     * @see .setIndeterminate
-     */
-    fun setIndeterminateDrawable(d: Drawable?) {
-        if (_progress != null) {
-            _progress!!.indeterminateDrawable = d
-        } else {
-            _indeterminateDrawable = d
-        }
-    }
     /**
      * Whether this ProgressDialog is in indeterminate _ode.
      *
@@ -308,23 +230,23 @@ class ProgressDialog : AlertDialog {
      */
     var isIndeterminate: Boolean
         get() = _progress?.isIndeterminate ?: _indeterminate
-        set(indeterminate) {
+        set(value) {
             if (_progress != null) {
-                _progress!!.isIndeterminate = indeterminate
+                _progress!!.isIndeterminate = value
             } else {
-                _indeterminate = indeterminate
+                _indeterminate = value
             }
         }
 
-    override fun setMessage(_essage: CharSequence) {
+    override fun setMessage(message: CharSequence) {
         if (_progress != null) {
             if (_progressStyle == STYLE_HORIZONTAL) {
-                super.setMessage(_essage)
+                super.setMessage(message)
             } else {
-                _messageView!!.text = _essage
+                _messageView!!.text = message
             }
         } else {
-            _message = _essage
+            _message = message
         }
     }
 
@@ -339,9 +261,11 @@ class ProgressDialog : AlertDialog {
      * @param style the style of this ProgressDialog, either [.STYLE_SPINNER] or
      * [.STYLE_HORIZONTAL]
      */
-    fun setProgressStyle(style: Int) {
-        _progressStyle = style
-    }
+    var progressStyle: Int
+        get() = _progressStyle
+        set(value) {
+            _progressStyle = value
+        }
 
     /**
      * Change the format of the small text showing current and maximum units
@@ -351,10 +275,9 @@ class ProgressDialog : AlertDialog {
      * use "%1d" for the current number and "%2d" for the maximum.  If null,
      * nothing will be shown.
      */
-    fun setProgressNumberFormat(format: String) {
-        _progressNumberFormat = format
-        onProgressChanged()
-    }
+    var progressNumberFormat: String
+        get() = _progressNumberFormat
+        set(value) = changesProgress { _progressNumberFormat = value }
 
     /**
      * Change the format of the small text showing the percentage of progress.
@@ -364,8 +287,12 @@ class ProgressDialog : AlertDialog {
      * @param format An instance of a [NumberFormat] to generate the
      * percentage text.  If null, nothing will be shown.
      */
-    fun setProgressPercentFormat(format: NumberFormat) {
-        _progressPercentFormat = format
+    var progressPercentFormat: NumberFormat
+        get() = _progressPercentFormat
+        set(value) = changesProgress { _progressPercentFormat = value }
+
+    private fun changesProgress(fn: () -> Unit): Unit {
+        fn.invoke()
         onProgressChanged()
     }
 
@@ -393,7 +320,7 @@ class ProgressDialog : AlertDialog {
          *
          * @param context the parent context
          * @param title the title text for the dialog's window
-         * @param _essage the text to be displayed in the dialog
+         * @param message the text to be displayed in the dialog
          * @param indeterminate true if the dialog should be [        indeterminate][.setIndeterminate], false otherwise
          * @param cancelable true if the dialog is [cancelable][.setCancelable],
          * false otherwise
@@ -406,7 +333,7 @@ class ProgressDialog : AlertDialog {
          *
          * @param context the parent context
          * @param title the title text for the dialog's window
-         * @param _essage the text to be displayed in the dialog
+         * @param message the text to be displayed in the dialog
          * @param indeterminate true if the dialog should be [        indeterminate][.setIndeterminate], false otherwise
          * @return the ProgressDialog
          */
@@ -415,7 +342,7 @@ class ProgressDialog : AlertDialog {
          *
          * @param context the parent context
          * @param title the title text for the dialog's window
-         * @param _essage the text to be displayed in the dialog
+         * @param message the text to be displayed in the dialog
          * @return the ProgressDialog
          */
         /**

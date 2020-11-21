@@ -19,12 +19,14 @@ class ExportTasksDialog : DialogFragment() {
     @Inject lateinit var tasksJsonExporter: TasksJsonExporter
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val progressDialog = dialogBuilder.newProgressDialog()
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
-        progressDialog.progress = 0
-        progressDialog.setCancelable(false)
-        progressDialog.isIndeterminate = false
-        progressDialog.show()
+        val progressDialog = dialogBuilder.newProgressDialog().apply {
+            progressStyle = ProgressDialog.STYLE_HORIZONTAL
+            progress = 0
+            isCancelable = false
+            isIndeterminate = false
+        }.apply {
+            show()
+        }
         isCancelable = false
         lifecycleScope.launch(NonCancellable) {
             tasksJsonExporter.exportTasks(
